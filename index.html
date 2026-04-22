@@ -3,930 +3,795 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>栄養管理ツール</title>
+<title>NutriQuest — 栄養管理RPG</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#f5f7fa;color:#333;font-size:16px;min-height:100vh}
+:root {
+  --bg:    #080d18;
+  --bg2:   #0d1424;
+  --card:  #111827;
+  --card2: #162035;
+  --b1:    #1e2d42;
+  --b2:    #253650;
+  --cyan:  #00d4ff;
+  --cyand: rgba(0,212,255,0.15);
+  --green: #22c55e;
+  --gd:    rgba(34,197,94,0.15);
+  --amber: #f59e0b;
+  --ad:    rgba(245,158,11,0.15);
+  --red:   #ef4444;
+  --rd:    rgba(239,68,68,0.15);
+  --purp:  #a78bfa;
+  --pd:    rgba(167,139,250,0.15);
+  --text:  #e2e8f0;
+  --dim:   #94a3b8;
+  --muted: #475569;
+  --r:     14px;
+  --rs:    8px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:var(--bg);color:var(--text);font-size:16px;min-height:100vh;overflow-x:hidden}
 
-/* ===== HEADER ===== */
-.header{background:#fff;border-bottom:2px solid #e8eaed;padding:14px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.header-title{font-size:20px;font-weight:800;color:#2c3e50;letter-spacing:-.5px}
-.date-nav{display:flex;align-items:center;gap:8px}
-.date-nav-btn{background:#f0f2f5;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:16px;line-height:1;color:#555;transition:background .15s}
-.date-nav-btn:hover{background:#e0e4ea}
-#currentDate{padding:6px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;color:#333;background:#fff;cursor:pointer}
-.btn-today{padding:6px 12px;background:#eef4ff;border:1.5px solid #4a90d9;border-radius:6px;color:#4a90d9;font-size:13px;font-weight:600;cursor:pointer}
+/* ── HEADER ── */
+.hdr{background:rgba(8,13,24,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:12px 16px 8px;position:sticky;top:0;z-index:100}
+.hdr-r1{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.site-title{font-size:17px;font-weight:900;color:var(--cyan);text-shadow:0 0 18px rgba(0,212,255,.5);letter-spacing:-.3px;flex-shrink:0}
+.hdr-date{font-size:11px;color:var(--muted);margin-top:2px}
+.hdr-chips{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.chip{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid}
+.chip-lv{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.35);color:var(--cyan)}
+.chip-str{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);color:var(--amber)}
+.rank-badge{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;border:2px solid;flex-shrink:0}
+.rS{background:rgba(234,179,8,.18);border-color:#eab308;color:#eab308}
+.rA{background:rgba(0,212,255,.12);border-color:var(--cyan);color:var(--cyan)}
+.rB{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green)}
+.rC{background:rgba(148,163,184,.1);border-color:#64748b;color:#94a3b8}
+.xp-row{display:flex;align-items:center;gap:8px}
+.xp-track{flex:1;height:7px;background:var(--b1);border-radius:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#0e7490,var(--cyan));border-radius:4px;transition:width .6s ease;box-shadow:0 0 8px rgba(0,212,255,.45)}
+.xp-txt{font-size:11px;color:var(--muted);white-space:nowrap;min-width:75px;text-align:right}
 
-/* ===== GAME BAR ===== */
-.game-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0 10px;flex-wrap:wrap}
-.game-bar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.lv-badge{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.xp-track{flex:1;min-width:60px;max-width:180px}
-.xp-bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}
-.xp-fill{height:100%;background:linear-gradient(90deg,#667eea,#a78bfa);border-radius:4px;transition:width .5s ease}
-.xp-label{font-size:10px;color:#aaa;margin-top:2px;font-weight:600}
-.streak-chip{background:#fff3e0;border:1.5px solid #f39c12;color:#e67e22;font-size:12px;font-weight:700;padding:4px 10px;border-radius:16px;white-space:nowrap;flex-shrink:0}
-.streak-chip.cold{background:#f5f5f5;border-color:#ddd;color:#aaa}
+/* ── DATE BAR ── */
+.dbar{background:var(--bg2);border-bottom:1px solid var(--b1);padding:8px 16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.dbar-btn{background:var(--card);border:1px solid var(--b1);border-radius:6px;color:var(--dim);padding:5px 12px;cursor:pointer;font-size:14px;transition:all .15s}
+.dbar-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+#currentDate{background:var(--card);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:6px 10px;font-size:14px;cursor:pointer}
+.dbar-today{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);border-radius:6px;color:var(--cyan);padding:5px 12px;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s}
+.dbar-today:hover{background:rgba(0,212,255,.18)}
 
-/* ===== TABS ===== */
-.nav-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fff;scrollbar-width:none}
-.nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{padding:11px 13px;border:none;background:none;font-size:13px;color:#888;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;font-weight:500;transition:all .2s;flex-shrink:0}
-.nav-tab.active{color:#4a90d9;border-bottom-color:#4a90d9;font-weight:700}
+/* ── LAYOUT ── */
+.main{max-width:860px;margin:0 auto;padding:14px 14px 40px}
+.sec{margin-bottom:6px}
+.sec-hdr{display:flex;align-items:center;gap:8px;margin:20px 0 10px}
+.sec-hdr:first-child{margin-top:0}
+.sec-ttl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--b1)}
 
-/* ===== LAYOUT ===== */
-.content{max-width:780px;margin:0 auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.card-title{font-size:15px;font-weight:700;color:#2c3e50;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:16px}
+.card+.card{margin-top:10px}
 
-/* ===== STATS ===== */
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:500px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
-.stat-card{background:#f8f9fc;border-radius:12px;padding:14px;text-align:center;border:1px solid #eff0f3}
-.stat-label{font-size:11px;color:#999;margin-bottom:4px;font-weight:600;letter-spacing:.3px}
-.stat-value{font-size:24px;font-weight:800;color:#2c3e50;line-height:1.1}
-.stat-unit{font-size:12px;color:#aaa;font-weight:400}
-.stat-goal{font-size:11px;color:#bbb;margin-top:3px}
-.stat-pct{font-size:12px;font-weight:700;margin-top:2px}
-.pct-ok{color:#27ae60}.pct-warn{color:#f39c12}.pct-over{color:#e74c3c}
+/* ── WEIGHT CARD ── */
+.wcard{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.wcard-left{flex:1;min-width:160px}
+.w-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.w-input-wrap{display:flex;align-items:baseline;gap:6px}
+#weightInput{width:120px;background:rgba(255,255,255,.05);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--text);font-size:26px;font-weight:800;padding:8px 12px;text-align:center;transition:border-color .2s}
+#weightInput:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.w-unit{font-size:16px;color:var(--dim);font-weight:600}
+.w-status{font-size:12px;margin-top:6px}
+.w-ok{color:var(--green)}.w-no{color:var(--muted)}
+.wcard-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.w-xp-hint{font-size:11px;color:var(--purp);font-weight:700}
 
-/* ===== PROGRESS ===== */
-.progress-wrap{margin-bottom:13px}
-.progress-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:#555}
-.progress-head b{color:#2c3e50}
-.progress-bar{height:11px;background:#f0f0f0;border-radius:6px;overflow:hidden}
-.progress-fill{height:100%;border-radius:6px;transition:width .4s ease}
-.p-cal{background:linear-gradient(90deg,#ff6b6b,#ff8e8e)}
-.p-pro{background:linear-gradient(90deg,#4ecdc4,#6eddd5)}
-.p-fat{background:linear-gradient(90deg,#f7b731,#fcd34d)}
-.p-carb{background:linear-gradient(90deg,#a29bfe,#c4b0ff)}
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+@media(min-width:500px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.scard{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.scard.cy::before{background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.scard.gr::before{background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.scard.am::before{background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.scard.pu::before{background:linear-gradient(90deg,transparent,var(--purp),transparent)}
+.scard.re::before{background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.sl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.sv{font-size:26px;font-weight:800;line-height:1.1}
+.su{font-size:12px;color:var(--dim);font-weight:400}
+.ss{font-size:11px;color:var(--muted);margin-top:4px}
+.sp{font-size:12px;font-weight:700;margin-top:2px}
 
-/* ===== MISSIONS ===== */
-.mission-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5}
-.mission-item:last-child{border-bottom:none}
-.mission-check{width:26px;height:26px;border-radius:50%;border:2.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .3s}
-.mission-check.done{background:#27ae60;border-color:#27ae60;color:#fff}
-.mission-info{flex:1}
-.mission-label{font-size:14px;font-weight:600;color:#333}
-.mission-label.done{color:#aaa;text-decoration:line-through}
-.mission-xp{font-size:12px;color:#9b59b6;font-weight:700;margin-top:2px}
-.mission-xp.done{color:#27ae60}
+/* ── SCORE CARD ── */
+.score-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:16px;text-align:center;grid-column:span 2}
+@media(min-width:500px){.score-card{grid-column:auto}}
+.score-top{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.score-num{font-size:52px;font-weight:900;line-height:1}
+.sS{color:#eab308;text-shadow:0 0 24px rgba(234,179,8,.55)}
+.sA{color:var(--cyan);text-shadow:0 0 20px rgba(0,212,255,.45)}
+.sB{color:var(--green);text-shadow:0 0 20px rgba(34,197,94,.4)}
+.sC{color:#94a3b8}
+.rank-pill{display:inline-block;font-size:13px;font-weight:800;padding:3px 14px;border-radius:20px;border:2px solid;margin-top:6px}
 
-/* ===== BADGES ===== */
-.badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:500px){.badge-grid{grid-template-columns:repeat(3,1fr)}}
-.badge-card{border-radius:12px;padding:16px;text-align:center;border:2px solid}
-.badge-card.earned{background:#fffbf0;border-color:#f39c12}
-.badge-card.locked{background:#f8f9fa;border-color:#e8eaed;opacity:.6}
-.badge-emoji{font-size:32px;margin-bottom:8px}
-.badge-name{font-size:13px;font-weight:700;color:#2c3e50;margin-bottom:4px}
-.badge-desc{font-size:11px;color:#999;line-height:1.4}
-.badge-earned-date{font-size:10px;color:#f39c12;font-weight:700;margin-top:6px}
-.badge-locked-label{font-size:10px;color:#ccc;font-weight:700;margin-top:6px}
+/* ── GAUGE ── */
+.gauge-item{margin-bottom:13px}
+.gauge-item:last-child{margin-bottom:0}
+.gh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:13px}
+.g-lbl{font-weight:700;color:var(--dim)}
+.g-vals{color:var(--muted);font-size:12px}
+.g-pct{font-weight:700;font-size:13px}
+.g-track{height:12px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}
+.g-fill{height:100%;border-radius:6px;transition:width .5s ease}
+.gc{background:linear-gradient(90deg,#b91c1c,#ef4444);box-shadow:0 0 8px rgba(239,68,68,.4)}
+.gp{background:linear-gradient(90deg,#0e7490,#06b6d4);box-shadow:0 0 8px rgba(6,182,212,.4)}
+.gf{background:linear-gradient(90deg,#92400e,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,.4)}
+.gb{background:linear-gradient(90deg,#5b21b6,#8b5cf6);box-shadow:0 0 8px rgba(139,92,246,.4)}
 
-/* ===== GAME TAB STATS ===== */
-.game-stat-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5}
-.game-stat-row:last-child{border-bottom:none}
-.game-stat-label{font-size:14px;color:#666}
-.game-stat-val{font-size:18px;font-weight:800;color:#2c3e50}
+/* ── MISSIONS ── */
+.mission-list{display:flex;flex-direction:column;gap:8px}
+.mi{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:var(--rs);padding:12px 14px;transition:all .35s}
+.mi.done{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.28)}
+@keyframes mflash{0%{background:rgba(34,197,94,.3)}100%{background:rgba(34,197,94,.06)}}
+.mi.flash{animation:mflash .5s ease}
+.mi-icon{width:28px;height:28px;border-radius:50%;border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .3s}
+.mi.done .mi-icon{background:var(--green);border-color:var(--green);box-shadow:0 0 10px rgba(34,197,94,.5);color:#fff}
+.mi-info{flex:1}
+.mi-lbl{font-size:14px;font-weight:600}
+.mi.done .mi-lbl{color:var(--dim);text-decoration:line-through}
+.mi-xp{font-size:11px;color:var(--purp);font-weight:700;margin-top:2px}
+.mi.done .mi-xp{color:var(--green)}
 
-/* ===== FORMS ===== */
-.form-group{margin-bottom:12px}
-.form-label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:5px;letter-spacing:.3px}
-.form-input{width:100%;padding:10px 13px;border:1.5px solid #e0e4ea;border-radius:9px;font-size:15px;color:#333;background:#fff;transition:border-color .2s;-webkit-appearance:none;appearance:none}
-.form-input:focus{outline:none;border-color:#4a90d9;box-shadow:0 0 0 3px rgba(74,144,217,.1)}
-select.form-input{cursor:pointer}
-.form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:500px){.form-row-4{grid-template-columns:repeat(4,1fr)}}
-
-/* ===== BUTTONS ===== */
-.btn{padding:10px 18px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;justify-content:center}
-.btn-block{width:100%}
-.btn-primary{background:#4a90d9;color:#fff}
-.btn-primary:hover{background:#3a7bc8;transform:translateY(-1px)}
-.btn-success{background:#27ae60;color:#fff}
-.btn-success:hover{background:#219150}
-.btn-danger{background:#e74c3c;color:#fff;padding:5px 11px;font-size:12px}
-.btn-danger:hover{background:#c0392b}
-.btn-sec{background:#f0f2f5;color:#555;padding:5px 11px;font-size:12px}
-.btn-sec:hover{background:#e4e6ea}
-
-/* ===== QUICK BUTTONS ===== */
+/* ── QUICK ── */
 .quick-wrap{display:flex;flex-wrap:wrap;gap:8px}
-.quick-btn{padding:8px 14px;border:1.5px solid #4a90d9;border-radius:20px;background:#f0f6ff;color:#4a90d9;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-.quick-btn:hover{background:#4a90d9;color:#fff}
+.qbtn{padding:7px 14px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.25);border-radius:20px;color:var(--cyan);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.qbtn:hover{background:rgba(0,212,255,.18);border-color:var(--cyan)}
 
-/* ===== MEAL ITEMS ===== */
-.meal-item{border:1.5px solid #eff1f5;border-radius:11px;padding:13px;margin-bottom:9px;background:#fafbfd;transition:border-color .2s}
-.meal-item:hover{border-color:#c9d6e8}
-.meal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.meal-name{font-weight:700;color:#2c3e50;font-size:15px;margin-top:4px}
-.meal-cat{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700}
-.cat-breakfast{background:#fff3e0;color:#e67e22}
-.cat-lunch{background:#e8f5e9;color:#27ae60}
-.cat-dinner{background:#eef0fb;color:#5c6bc0}
-.cat-snack{background:#fce4ec;color:#c0392b}
-.meal-actions{display:flex;gap:5px;flex-shrink:0}
-.meal-nums{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#777}
-.meal-nums span{white-space:nowrap}
+/* ── FORMS ── */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.fi{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--text);font-size:15px;padding:10px 13px;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+.fi:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.fi::placeholder{color:var(--muted)}
+select.fi{cursor:pointer}
+.frow{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:500px){.frow4{grid-template-columns:repeat(4,1fr)}}
 
-/* ===== WEIGHT ===== */
-.weight-big{display:flex;align-items:baseline;gap:6px}
-#weightInput{width:130px;font-size:28px;font-weight:800;text-align:center;padding:8px 12px}
-.weight-unit{font-size:18px;color:#aaa;font-weight:600}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 18px;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-bl{width:100%}
+.btn-p{background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;box-shadow:0 0 16px rgba(0,212,255,.22)}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(0,212,255,.4)}
+.btn-s{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);color:var(--green)}
+.btn-s:hover{background:rgba(34,197,94,.22)}
+.btn-d{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:var(--red);padding:5px 11px;font-size:12px}
+.btn-d:hover{background:rgba(239,68,68,.2)}
+.btn-e{background:rgba(255,255,255,.06);border:1px solid var(--b2);color:var(--dim);padding:5px 11px;font-size:12px}
+.btn-e:hover{background:rgba(255,255,255,.1)}
 
-/* ===== MISC ===== */
-.empty{text-align:center;padding:36px 20px;color:#bbb}
-.empty-icon{font-size:44px;margin-bottom:10px}
-.past-item{border:1.5px solid #e8eaed;border-radius:11px;padding:14px;margin-bottom:9px;cursor:pointer;transition:all .2s}
-.past-item:hover{background:#f5f7fa;border-color:#4a90d9}
-.past-date{font-weight:700;color:#2c3e50;margin-bottom:4px;font-size:15px}
-.past-summary{font-size:13px;color:#888;line-height:1.6}
-.chart-wrap{position:relative;height:240px}
-.weekly-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
-.weekly-row:last-child{border-bottom:none}
-.weekly-label{color:#666}
-.weekly-val{font-weight:700;color:#2c3e50}
-.tag-new{display:inline-block;background:#ff6b6b;color:#fff;font-size:10px;padding:2px 6px;border-radius:6px;margin-left:6px;font-weight:700;vertical-align:middle}
-.section-note{font-size:12px;color:#aaa;margin-bottom:12px;line-height:1.5}
+/* ── MEAL LIST ── */
+.meal-item{background:rgba(255,255,255,.025);border:1px solid var(--b1);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;transition:border-color .2s}
+.meal-item:hover{border-color:var(--b2)}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.mn{font-size:14px;font-weight:700;margin-top:4px}
+.mcat{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.cbr{background:rgba(245,158,11,.14);color:var(--amber)}
+.clu{background:rgba(34,197,94,.12);color:var(--green)}
+.cdi{background:rgba(167,139,250,.14);color:var(--purp)}
+.csn{background:rgba(239,68,68,.12);color:var(--red)}
+.mact{display:flex;gap:5px;flex-shrink:0}
+.mnums{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.mnums span{white-space:nowrap}
 
-/* ===== MODALS ===== */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.modal-title{font-size:18px;font-weight:800;margin-bottom:20px;color:#2c3e50}
-.modal-actions{display:flex;gap:10px;margin-top:20px}
+/* ── BADGES ── */
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:480px){.badge-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:680px){.badge-grid{grid-template-columns:repeat(6,1fr)}}
+.bc{background:rgba(255,255,255,.025);border:1.5px solid var(--b1);border-radius:10px;padding:12px 8px;text-align:center;transition:all .2s}
+.bc.earned{background:rgba(234,179,8,.06);border-color:rgba(234,179,8,.32);box-shadow:0 0 12px rgba(234,179,8,.08)}
+.bc.earned:hover{transform:translateY(-2px)}
+.be{font-size:26px;display:block;margin-bottom:5px}
+.bc.locked .be{filter:grayscale(1);opacity:.25}
+.bn{font-size:11px;font-weight:700;color:var(--dim)}
+.bc.locked .bn{color:var(--muted)}
+.bdate{font-size:10px;color:var(--amber);margin-top:3px}
+.bcond{font-size:10px;color:var(--muted);margin-top:2px}
 
-/* Level-up / Badge modals */
-.reward-modal{text-align:center;padding:32px 24px}
-.reward-icon{font-size:64px;margin-bottom:16px;animation:pop .4s ease}
-.reward-title{font-size:22px;font-weight:800;color:#2c3e50;margin-bottom:8px}
-.reward-sub{font-size:15px;color:#666;margin-bottom:24px;line-height:1.5}
-.reward-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%}
-@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+/* ── STATUS ── */
+.st-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:500px){.st-grid{grid-template-columns:repeat(4,1fr)}}
+.stcard{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:14px;text-align:center}
+.stv{font-size:34px;font-weight:900;line-height:1;margin:6px 0 4px}
+.stl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.stbar{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;margin-top:8px}
+.stfill{height:100%;border-radius:2px}
 
-/* ===== TOAST ===== */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2c3e50;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+/* ── PAST / COLLAPSE ── */
+.coll-btn{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:var(--rs);color:var(--dim);font-size:14px;font-weight:600;padding:12px 16px;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s}
+.coll-btn:hover{background:rgba(255,255,255,.06);border-color:var(--b2)}
+.past-item{background:rgba(255,255,255,.025);border:1px solid var(--b1);border-radius:var(--rs);padding:12px 14px;margin-top:8px;cursor:pointer;transition:all .2s}
+.past-item:hover{border-color:var(--cyan);background:rgba(0,212,255,.04)}
+.past-date{font-size:14px;font-weight:700;margin-bottom:3px}
+.past-sum{font-size:12px;color:var(--muted);line-height:1.6}
+.tag-td{display:inline-block;background:var(--cyan);color:#000;font-size:10px;padding:2px 7px;border-radius:5px;margin-left:6px;font-weight:800;vertical-align:middle}
+
+/* ── CHART ── */
+.chart-wrap{position:relative;height:220px}
+
+/* ── MODALS ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-ov.show{display:flex}
+.modal{background:var(--card2);border:1px solid var(--b2);border-radius:18px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,0,0,.6)}
+.modal-ttl{font-size:18px;font-weight:800;margin-bottom:20px}
+.modal-act{display:flex;gap:10px;margin-top:20px}
+
+/* REWARD */
+.rew{text-align:center;padding:16px 0}
+.rew-icon{font-size:64px;display:block;margin-bottom:14px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.rew-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.rew-sub{font-size:15px;color:var(--dim);line-height:1.5;margin-bottom:22px}
+.rew-btn{background:linear-gradient(135deg,#0e7490,var(--cyan));color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 0 20px rgba(0,212,255,.3);transition:all .2s}
+.rew-btn:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(0,212,255,.5)}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--b2);color:var(--text);padding:11px 22px;border-radius:22px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .toast.show{opacity:1}
 
+/* XP FLOAT */
+.xpf{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:900;color:var(--cyan);text-shadow:0 0 16px rgba(0,212,255,.8);pointer-events:none;z-index:3000;animation:floatUp 1.2s ease forwards}
+@keyframes floatUp{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-130%)}}
+
+/* MISC */
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+.ei{font-size:36px;margin-bottom:8px;opacity:.4}
 .hidden{display:none!important}
+.divider{height:1px;background:var(--b1);margin:16px 0}
+.snote{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
 
 @media(max-width:480px){
-  .content{padding:12px}
-  .card{padding:15px}
-  .header-top{flex-wrap:wrap;gap:8px}
-  .xp-track{max-width:100px}
+  .main{padding:10px 10px 40px}
+  .score-num{font-size:42px}
+  .hdr-chips .chip-lv{display:none}
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <div class="header-title">💪 栄養管理</div>
-    <div class="date-nav">
-      <button class="date-nav-btn" onclick="changeDate(-1)">◀</button>
-      <input type="date" id="currentDate" onchange="onDateChange()">
-      <button class="date-nav-btn" onclick="changeDate(1)">▶</button>
-      <button class="btn-today" onclick="goToToday()">今日</button>
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<div class="hdr">
+  <div class="hdr-r1">
+    <div>
+      <div class="site-title">⚡ NutriQuest</div>
+      <div class="hdr-date" id="hdrDate"></div>
+    </div>
+    <div class="hdr-chips">
+      <span class="chip chip-str" id="chipStr">🔥 0日</span>
+      <span class="chip chip-lv" id="chipLv">Lv.1</span>
+      <div class="rank-badge rC" id="rankBadge">C</div>
     </div>
   </div>
-
-  <!-- XP / Streak bar -->
-  <div class="game-bar" id="gameBar"></div>
-
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('today')">📋 今日</button>
-    <button class="nav-tab" onclick="switchTab('past')">📅 過去</button>
-    <button class="nav-tab" onclick="switchTab('weight')">📈 体重</button>
-    <button class="nav-tab" onclick="switchTab('weekly')">📆 週間</button>
-    <button class="nav-tab" onclick="switchTab('templates')">⭐ テンプレ</button>
-    <button class="nav-tab" onclick="switchTab('goals')">🎯 目標</button>
-    <button class="nav-tab" onclick="switchTab('game')">🎮 ゲーム</button>
+  <div class="xp-row">
+    <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    <div class="xp-txt" id="xpTxt">0 / 150 XP</div>
   </div>
 </div>
 
-<!-- ===== TODAY ===== -->
-<div id="tab-today" class="content">
+<!-- ═══════════════════ DATE BAR ═══════════════════ -->
+<div class="dbar">
+  <button class="dbar-btn" onclick="changeDate(-1)">◀</button>
+  <input type="date" id="currentDate" onchange="onDateChange()">
+  <button class="dbar-btn" onclick="changeDate(1)">▶</button>
+  <button class="dbar-today" onclick="goToToday()">今日</button>
+</div>
 
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="sec-hdr"><span class="sec-ttl">📊 ダッシュボード</span><div class="sec-line"></div></div>
+
+  <!-- Weight card (never re-rendered — preserves input) -->
   <div class="card">
-    <div class="card-title">⚖️ 今日の体重</div>
-    <div class="weight-big">
-      <input type="number" id="weightInput" class="form-input" step="0.1" min="0" max="300" placeholder="70.0" oninput="saveWeight()">
-      <span class="weight-unit">kg</span>
+    <div class="wcard">
+      <div class="wcard-left">
+        <div class="w-label">⚖️ 今日の体重</div>
+        <div class="w-input-wrap">
+          <input type="number" id="weightInput" step="0.1" min="0" max="300" placeholder="70.0" oninput="saveWeight()">
+          <span class="w-unit">kg</span>
+        </div>
+        <div id="wStatus" class="w-status w-no">未入力（入力で +20 XP）</div>
+      </div>
+      <div class="wcard-right">
+        <div id="wXpHint" class="w-xp-hint" style="display:none">✅ +20 XP 獲得！</div>
+      </div>
     </div>
   </div>
 
-  <!-- Daily Missions -->
-  <div class="card">
-    <div class="card-title">📝 デイリーミッション</div>
-    <div id="missionsSection"></div>
-  </div>
+  <!-- Stat grid + Score -->
+  <div class="stat-grid" id="statGrid"></div>
 
-  <div class="card">
-    <div class="card-title">📊 今日の合計</div>
-    <div class="stats-grid" id="todayStats"></div>
-  </div>
+  <!-- GAUGES -->
+  <div class="sec-hdr"><span class="sec-ttl">📈 達成ゲージ</span><div class="sec-line"></div></div>
+  <div class="card"><div id="gaugeArea"></div></div>
 
-  <div class="card">
-    <div class="card-title">🎯 目標達成率</div>
-    <div id="progressSection"></div>
-  </div>
+  <!-- MISSIONS -->
+  <div class="sec-hdr"><span class="sec-ttl">📝 デイリーミッション</span><div class="sec-line"></div></div>
+  <div class="card"><div class="mission-list" id="missionList"></div></div>
 
-  <div class="card">
-    <div class="card-title">⚡ クイック追加（テンプレから）</div>
-    <div class="quick-wrap" id="quickBtns"></div>
-  </div>
+  <!-- QUICK ADD -->
+  <div class="sec-hdr"><span class="sec-ttl">⚡ クイック追加</span><div class="sec-line"></div></div>
+  <div class="card"><div class="quick-wrap" id="quickBtns"></div></div>
 
+  <!-- ADD FORM -->
+  <div class="sec-hdr"><span class="sec-ttl">➕ 食事を追加</span><div class="sec-line"></div></div>
   <div class="card">
-    <div class="card-title">➕ 食事を追加</div>
-    <div class="form-group">
-      <label class="form-label">食事区分</label>
-      <select id="mealCategory" class="form-input">
+    <div class="fg">
+      <label class="fl">食事区分</label>
+      <select id="mealCategory" class="fi">
         <option value="breakfast">🌅 朝食</option>
         <option value="lunch">☀️ 昼食</option>
         <option value="dinner">🌙 夕食</option>
         <option value="snack">🍪 間食</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">食品名</label>
-      <input type="text" id="mealName" class="form-input" placeholder="例：鶏むね肉 100g、コンビニおにぎり">
+    <div class="fg">
+      <label class="fl">食品名</label>
+      <input type="text" id="mealName" class="fi" placeholder="例：鶏むね肉 100g、おにぎり">
     </div>
-    <div class="form-row form-row-4">
-      <div class="form-group">
-        <label class="form-label">カロリー (kcal)</label>
-        <input type="number" id="mealCalories" class="form-input" placeholder="200" min="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">たんぱく質 (g)</label>
-        <input type="number" id="mealProtein" class="form-input" placeholder="30" min="0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">脂質 (g)</label>
-        <input type="number" id="mealFat" class="form-input" placeholder="5" min="0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">炭水化物 (g)</label>
-        <input type="number" id="mealCarbs" class="form-input" placeholder="30" min="0" step="0.1">
-      </div>
+    <div class="frow frow4">
+      <div class="fg"><label class="fl">カロリー (kcal)</label><input type="number" id="mealCalories" class="fi" placeholder="200" min="0"></div>
+      <div class="fg"><label class="fl">たんぱく質 (g)</label><input type="number" id="mealProtein"  class="fi" placeholder="30"  min="0" step="0.1"></div>
+      <div class="fg"><label class="fl">脂質 (g)</label>      <input type="number" id="mealFat"      class="fi" placeholder="5"   min="0" step="0.1"></div>
+      <div class="fg"><label class="fl">炭水化物 (g)</label>  <input type="number" id="mealCarbs"    class="fi" placeholder="30"  min="0" step="0.1"></div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="addMeal()">追加する</button>
+    <button class="btn btn-p btn-bl" onclick="addMeal()">追加する</button>
   </div>
 
-  <div class="card">
-    <div class="card-title">🍽️ 食事一覧</div>
-    <div id="mealList"></div>
+  <!-- MEAL LIST -->
+  <div class="sec-hdr"><span class="sec-ttl">🍽️ 食事一覧</span><div class="sec-line"></div></div>
+  <div id="mealList"></div>
+
+  <!-- BADGES -->
+  <div class="sec-hdr"><span class="sec-ttl">🎖️ バッジ</span><div class="sec-line"></div></div>
+  <div class="badge-grid" id="badgeGrid"></div>
+
+  <!-- STATUS -->
+  <div class="sec-hdr"><span class="sec-ttl">⚔️ ステータス</span><div class="sec-line"></div></div>
+  <div class="st-grid" id="statusGrid"></div>
+
+  <!-- WEIGHT CHART -->
+  <div class="sec-hdr"><span class="sec-ttl">📉 体重推移（30日）</span><div class="sec-line"></div></div>
+  <div class="card"><div class="chart-wrap"><canvas id="weightChart"></canvas></div></div>
+
+  <!-- PAST -->
+  <div class="sec-hdr"><span class="sec-ttl">📅 過去記録</span><div class="sec-line"></div></div>
+  <button class="coll-btn" onclick="toggleColl('pastColl','pastChev','pastRecs',renderPast)">
+    <span>過去の記録を見る</span><span id="pastChev">▼</span>
+  </button>
+  <div class="hidden" id="pastColl"><div id="pastRecs"></div></div>
+
+  <!-- SETTINGS -->
+  <div class="sec-hdr" style="margin-top:24px"><span class="sec-ttl">⚙️ 設定</span><div class="sec-line"></div></div>
+  <button class="coll-btn" onclick="toggleColl('setColl','setChev','setContent',renderSettings)">
+    <span>目標・テンプレート設定</span><span id="setChev">▼</span>
+  </button>
+  <div class="hidden" id="setColl">
+    <div id="setContent"></div>
   </div>
 
-</div>
+</div><!-- /main -->
 
-<!-- ===== PAST ===== -->
-<div id="tab-past" class="content hidden">
-  <div class="card">
-    <div class="card-title">📅 過去の記録（新しい順）</div>
-    <div id="pastRecords"></div>
-  </div>
-</div>
-
-<!-- ===== WEIGHT ===== -->
-<div id="tab-weight" class="content hidden">
-  <div class="card">
-    <div class="card-title">📈 体重推移（過去30日）</div>
-    <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="card-title">📋 体重データ一覧</div>
-    <div id="weightList"></div>
-  </div>
-</div>
-
-<!-- ===== WEEKLY ===== -->
-<div id="tab-weekly" class="content hidden">
-  <div class="card">
-    <div class="card-title">📆 週間サマリー（過去7日）</div>
-    <div id="weeklyStats"></div>
-  </div>
-</div>
-
-<!-- ===== TEMPLATES ===== -->
-<div id="tab-templates" class="content hidden">
-  <div class="card">
-    <div class="card-title">⭐ テンプレート食品</div>
-    <p class="section-note">よく食べる食品を登録すると「クイック追加」ボタンに表示されます。</p>
-    <div id="templateList"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">➕ テンプレートを追加</div>
-    <div class="form-group">
-      <label class="form-label">食品名</label>
-      <input type="text" id="tmplName" class="form-input" placeholder="例：ザバスプロテイン、コンビニサラダチキン">
-    </div>
-    <div class="form-group">
-      <label class="form-label">デフォルト食事区分</label>
-      <select id="tmplCategory" class="form-input">
-        <option value="breakfast">朝食</option>
-        <option value="lunch">昼食</option>
-        <option value="dinner">夕食</option>
-        <option value="snack">間食</option>
-      </select>
-    </div>
-    <div class="form-row form-row-4">
-      <div class="form-group">
-        <label class="form-label">カロリー</label>
-        <input type="number" id="tmplCalories" class="form-input" placeholder="110" min="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">たんぱく質</label>
-        <input type="number" id="tmplProtein" class="form-input" placeholder="20" min="0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">脂質</label>
-        <input type="number" id="tmplFat" class="form-input" placeholder="2" min="0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">炭水化物</label>
-        <input type="number" id="tmplCarbs" class="form-input" placeholder="5" min="0" step="0.1">
-      </div>
-    </div>
-    <button class="btn btn-primary btn-block" onclick="addTemplate()">テンプレートを保存</button>
-  </div>
-</div>
-
-<!-- ===== GOALS ===== -->
-<div id="tab-goals" class="content hidden">
-  <div class="card">
-    <div class="card-title">🎯 1日の目標値を設定</div>
-    <p class="section-note">筋トレ・増量を目的とした目標の目安：カロリー2500〜3000、たんぱく質150〜180g、脂質60〜80g、炭水化物300〜400g</p>
-    <div class="form-group">
-      <label class="form-label">目標カロリー (kcal)</label>
-      <input type="number" id="goalCalories" class="form-input" placeholder="2500" min="0">
-    </div>
-    <div class="form-group">
-      <label class="form-label">目標たんぱく質 (g)</label>
-      <input type="number" id="goalProtein" class="form-input" placeholder="160" min="0" step="0.1">
-    </div>
-    <div class="form-group">
-      <label class="form-label">目標脂質 (g)</label>
-      <input type="number" id="goalFat" class="form-input" placeholder="70" min="0" step="0.1">
-    </div>
-    <div class="form-group">
-      <label class="form-label">目標炭水化物 (g)</label>
-      <input type="number" id="goalCarbs" class="form-input" placeholder="300" min="0" step="0.1">
-    </div>
-    <button class="btn btn-primary btn-block" onclick="saveGoals()">目標を保存する</button>
-  </div>
-</div>
-
-<!-- ===== GAME TAB ===== -->
-<div id="tab-game" class="content hidden">
-
-  <!-- Level card -->
-  <div class="card">
-    <div class="card-title">🏆 あなたのステータス</div>
-    <div id="gameStatus"></div>
-  </div>
-
-  <!-- All badges -->
-  <div class="card">
-    <div class="card-title">🎖️ バッジコレクション</div>
-    <div class="badge-grid" id="badgeGrid"></div>
-  </div>
-
-  <!-- XP history / how to earn -->
-  <div class="card">
-    <div class="card-title">💡 XPの稼ぎ方</div>
-    <div class="weekly-row"><span class="weekly-label">食事を1回記録</span><span class="weekly-val" style="color:#9b59b6">+10 XP</span></div>
-    <div class="weekly-row"><span class="weekly-label">カロリー目標達成（1日）</span><span class="weekly-val" style="color:#9b59b6">+50 XP</span></div>
-    <div class="weekly-row"><span class="weekly-label">たんぱく質目標達成（1日）</span><span class="weekly-val" style="color:#9b59b6">+100 XP</span></div>
-    <div class="weekly-row"><span class="weekly-label">レベルアップに必要なXP</span><span class="weekly-val">100 XP / レベル</span></div>
-  </div>
-
-</div>
-
-<!-- ===== EDIT MODAL ===== -->
-<div class="modal-overlay" id="editModal">
+<!-- ═══ EDIT MODAL ═══ -->
+<div class="modal-ov" id="editModal">
   <div class="modal">
-    <div class="modal-title">✏️ 食事を編集</div>
+    <div class="modal-ttl">✏️ 食事を編集</div>
     <input type="hidden" id="editId">
-    <div class="form-group">
-      <label class="form-label">食事区分</label>
-      <select id="editCategory" class="form-input">
-        <option value="breakfast">🌅 朝食</option>
-        <option value="lunch">☀️ 昼食</option>
-        <option value="dinner">🌙 夕食</option>
-        <option value="snack">🍪 間食</option>
+    <div class="fg"><label class="fl">食事区分</label>
+      <select id="editCategory" class="fi">
+        <option value="breakfast">🌅 朝食</option><option value="lunch">☀️ 昼食</option>
+        <option value="dinner">🌙 夕食</option><option value="snack">🍪 間食</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">食品名</label>
-      <input type="text" id="editName" class="form-input">
+    <div class="fg"><label class="fl">食品名</label><input type="text" id="editName" class="fi"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">カロリー</label><input type="number" id="editCalories" class="fi" min="0"></div>
+      <div class="fg"><label class="fl">たんぱく質</label><input type="number" id="editProtein" class="fi" min="0" step="0.1"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">カロリー (kcal)</label>
-        <input type="number" id="editCalories" class="form-input" min="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">たんぱく質 (g)</label>
-        <input type="number" id="editProtein" class="form-input" min="0" step="0.1">
-      </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">脂質</label><input type="number" id="editFat" class="fi" min="0" step="0.1"></div>
+      <div class="fg"><label class="fl">炭水化物</label><input type="number" id="editCarbs" class="fi" min="0" step="0.1"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">脂質 (g)</label>
-        <input type="number" id="editFat" class="form-input" min="0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">炭水化物 (g)</label>
-        <input type="number" id="editCarbs" class="form-input" min="0" step="0.1">
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">保存</button>
-      <button class="btn btn-sec" style="flex:1;padding:10px" onclick="closeModal()">キャンセル</button>
+    <div class="modal-act">
+      <button class="btn btn-p" style="flex:1" onclick="saveEdit()">保存</button>
+      <button class="btn btn-e" style="flex:1;padding:10px" onclick="closeModal('editModal')">キャンセル</button>
     </div>
   </div>
 </div>
 
-<!-- ===== REWARD MODAL (level-up / badge) ===== -->
-<div class="modal-overlay" id="rewardModal">
-  <div class="modal">
-    <div class="reward-modal" id="rewardContent"></div>
-  </div>
+<!-- ═══ REWARD MODAL ═══ -->
+<div class="modal-ov" id="rewardModal">
+  <div class="modal"><div class="rew" id="rewBody"></div></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// =====================================================================
-// STORAGE
-// =====================================================================
-const K = {
-  REC:   'nt_records',
-  GOALS: 'nt_goals',
-  TMPL:  'nt_templates',
-  GAME:  'nt_game',
-};
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
+const XP_PER_LV = 150;
 
-function getRecs() { return JSON.parse(localStorage.getItem(K.REC) || '{}'); }
-function getRec(d) { return getRecs()[d] || { weight: null, meals: [] }; }
-function saveRec(d, data) {
-  const r = getRecs(); r[d] = data;
-  localStorage.setItem(K.REC, JSON.stringify(r));
-}
-function getGoals() {
-  return Object.assign({ calories:2500, protein:160, fat:70, carbs:300 },
-    JSON.parse(localStorage.getItem(K.GOALS) || '{}'));
-}
-function getGame() {
-  return Object.assign({ badges: [], notifiedMissions: {} },
-    JSON.parse(localStorage.getItem(K.GAME) || '{}'));
-}
-function saveGame(g) { localStorage.setItem(K.GAME, JSON.stringify(g)); }
+const RANKS = [
+  { min:90, r:'S', cls:'rS', sc:'sS' },
+  { min:75, r:'A', cls:'rA', sc:'sA' },
+  { min:55, r:'B', cls:'rB', sc:'sB' },
+  { min:0,  r:'C', cls:'rC', sc:'sC' },
+];
+
+const BADGE_DEFS = [
+  { id:'first',    e:'🌟', n:'初記録',       c:'最初の1食を記録' },
+  { id:'streak3',  e:'🔥', n:'3日継続',      c:'3日連続記録' },
+  { id:'streak7',  e:'💎', n:'1週間連続',    c:'7日連続記録' },
+  { id:'streak30', e:'👑', n:'30日継続',     c:'30日連続記録' },
+  { id:'protein5', e:'💪', n:'プロテイン番長',c:'タンパク質目標 5日達成' },
+  { id:'cal5',     e:'🔋', n:'カロリー管理人',c:'カロリー目標 5日達成' },
+  { id:'highscore',e:'⭐', n:'完璧な1日',    c:'スコア90点以上を達成' },
+  { id:'lv10',     e:'🚀', n:'Lv.10到達',    c:'レベル10に到達' },
+  { id:'meal50',   e:'🍱', n:'50食達成',     c:'累計50食を記録' },
+];
+
+// ════════════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════════════
+const K = { REC:'nt_records', GOALS:'nt_goals', TMPL:'nt_templates', GAME:'nt_game' };
+
+const getRecs = () => JSON.parse(localStorage.getItem(K.REC) || '{}');
+const getRec  = d => getRecs()[d] || { weight:null, meals:[] };
+function saveRec(d, data) { const r=getRecs(); r[d]=data; localStorage.setItem(K.REC,JSON.stringify(r)); }
+
+const getGoals = () => Object.assign(
+  { calories:2500, protein:160, fat:70, carbs:300 },
+  JSON.parse(localStorage.getItem(K.GOALS)||'{}')
+);
+const getGame = () => Object.assign(
+  { badges:[] },
+  JSON.parse(localStorage.getItem(K.GAME)||'{}')
+);
+const saveGame = g => localStorage.setItem(K.GAME, JSON.stringify(g));
 
 function getTmpl() {
   const s = localStorage.getItem(K.TMPL);
   if (s) return JSON.parse(s);
   return [
-    { id:'t1', name:'ホエイプロテイン 1杯', category:'snack', calories:110, protein:20, fat:1.5, carbs:6 },
-    { id:'t2', name:'鶏むね肉 100g', category:'lunch', calories:108, protein:23, fat:1.5, carbs:0 },
-    { id:'t3', name:'ご飯 200g', category:'lunch', calories:336, protein:5, fat:0.5, carbs:74 },
-    { id:'t4', name:'卵 1個', category:'breakfast', calories:76, protein:6.2, fat:5, carbs:0.2 },
-    { id:'t5', name:'バナナ 1本', category:'snack', calories:86, protein:1, fat:0.2, carbs:22 },
-    { id:'t6', name:'サラダチキン 1個', category:'lunch', calories:113, protein:24, fat:1.5, carbs:0 },
-    { id:'t7', name:'食パン 1枚', category:'breakfast', calories:132, protein:4.6, fat:2, carbs:24 },
+    {id:'t1',name:'ホエイプロテイン',category:'snack',    calories:110,protein:20,  fat:1.5,carbs:6  },
+    {id:'t2',name:'鶏むね肉 100g',  category:'lunch',    calories:108,protein:23,  fat:1.5,carbs:0  },
+    {id:'t3',name:'ご飯 200g',      category:'lunch',    calories:336,protein:5,   fat:0.5,carbs:74 },
+    {id:'t4',name:'卵 1個',         category:'breakfast',calories:76, protein:6.2, fat:5,  carbs:0.2},
+    {id:'t5',name:'バナナ 1本',     category:'snack',    calories:86, protein:1,   fat:0.2,carbs:22 },
+    {id:'t6',name:'サラダチキン',   category:'lunch',    calories:113,protein:24,  fat:1.5,carbs:0  },
   ];
 }
-function saveTmpl(t) { localStorage.setItem(K.TMPL, JSON.stringify(t)); }
+const saveTmpl = t => localStorage.setItem(K.TMPL, JSON.stringify(t));
 
-// =====================================================================
-// GAMIFICATION — DATA
-// =====================================================================
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let curDate = todayStr();
+let wChart  = null;
+let rewQ    = [];
 
-// Badge definitions
-const BADGE_DEFS = [
-  { id:'first_record', emoji:'🌟', name:'初記録',       desc:'初めて食事を記録した', condition:'最初の1食を記録' },
-  { id:'streak_3',     emoji:'🔥', name:'3日継続',      desc:'3日連続で記録した',    condition:'3日連続記録' },
-  { id:'streak_7',     emoji:'💎', name:'1週間の戦士',  desc:'7日連続で記録した',    condition:'7日連続記録' },
-  { id:'protein_5',    emoji:'💪', name:'プロテイン番長',desc:'タンパク質目標を5日達成',condition:'タンパク質目標 5日達成' },
-  { id:'cal_5',        emoji:'🔋', name:'カロリー管理人',desc:'カロリー目標を5日達成', condition:'カロリー目標 5日達成' },
-  { id:'lv10',         emoji:'🚀', name:'Lv.10到達',    desc:'レベル10に到達した',   condition:'Lv.10 に到達' },
-];
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(ds) {
+  const d=new Date(ds+'T00:00:00'), D=['日','月','火','水','木','金','土'];
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${D[d.getDay()]}）`;
+}
+function fmtShort(ds) {
+  const d=new Date(ds+'T00:00:00'), D=['日','月','火','水','木','金','土'];
+  return `${d.getMonth()+1}/${d.getDate()}（${D[d.getDay()]}）`;
+}
 
-// Compute total XP from all records
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+function totals(meals) {
+  return (meals||[]).reduce((a,m)=>({
+    calories:a.calories+(+m.calories||0),
+    protein: a.protein +(+m.protein ||0),
+    fat:     a.fat     +(+m.fat     ||0),
+    carbs:   a.carbs   +(+m.carbs   ||0),
+  }),{calories:0,protein:0,fat:0,carbs:0});
+}
+function clamp(v,a,b){return Math.min(Math.max(v,a),b)}
+function pctOf(v,g){return g?Math.round(v/g*100):0}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function catLabel(c){return{breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'}[c]||c}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function showToast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2400);
+}
+function floatXP(v) {
+  const el=document.createElement('div');
+  el.className='xpf'; el.textContent=`+${v} XP`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1300);
+}
+
+// ════════════════════════════════════════════════
+// SCORE (0–100)
+// ════════════════════════════════════════════════
+function calcScore(rec, goals) {
+  const meals=rec.meals||[], tot=totals(meals);
+  let s=0;
+  // Calories 25pts
+  if (goals.calories>0) {
+    const r=tot.calories/goals.calories;
+    if (r>=.9&&r<=1.1) s+=25;
+    else if (r<.9) s+=Math.round(r/.9*25);
+    else s+=Math.round(clamp(2-r,0,1)*25);
+  }
+  // Protein 30pts
+  if (goals.protein>0) s+=Math.round(clamp(tot.protein/goals.protein,0,1)*30);
+  // Fat 15pts
+  if (goals.fat>0) {
+    const r=tot.fat/goals.fat;
+    if (r>=.8&&r<=1.2) s+=15;
+    else if (r<.8) s+=Math.round(r/.8*15);
+    else s+=Math.round(clamp(2-r,0,1)*15);
+  }
+  // Carbs 15pts
+  if (goals.carbs>0) {
+    const r=tot.carbs/goals.carbs;
+    if (r>=.8&&r<=1.2) s+=15;
+    else if (r<.8) s+=Math.round(r/.8*15);
+    else s+=Math.round(clamp(2-r,0,1)*15);
+  }
+  // Weight 10pts
+  if (rec.weight!=null) s+=10;
+  // Meals 3+ : 5pts
+  if (meals.length>=3) s+=5;
+  return clamp(Math.round(s),0,100);
+}
+function getRank(score) { return RANKS.find(r=>score>=r.min)||RANKS[3]; }
+
+// ════════════════════════════════════════════════
+// XP & LEVEL
+// ════════════════════════════════════════════════
 function computeXP() {
-  const recs = getRecs();
-  const goals = getGoals();
-  let xp = 0;
-  Object.values(recs).forEach(rec => {
-    const meals = rec.meals || [];
-    if (!meals.length) return;
-    xp += meals.length * 10;
-    const tot = totals(meals);
-    if (tot.calories >= goals.calories) xp += 50;
-    if (tot.protein >= goals.protein)   xp += 100;
+  const recs=getRecs(), g=getGoals();
+  let xp=0;
+  Object.values(recs).forEach(rec=>{
+    const m=rec.meals||[];
+    xp+=m.length*10;
+    if (rec.weight!=null) xp+=20;
+    const t=totals(m);
+    if (m.length>0){
+      if (t.calories>=g.calories) xp+=50;
+      if (t.protein>=g.protein)   xp+=100;
+    }
   });
   return xp;
 }
+function xpInfo(xp){ return { level:Math.floor(xp/XP_PER_LV)+1, inLv:xp%XP_PER_LV }; }
 
-function xpToLevel(xp) {
-  const level    = Math.floor(xp / 100) + 1;
-  const inLevel  = xp % 100;
-  return { level, inLevel, nextXP: 100 };
-}
-
+// ════════════════════════════════════════════════
+// STREAK
+// ════════════════════════════════════════════════
 function computeStreak() {
-  const recs = getRecs();
-  let streak = 0;
-  const d = new Date(todayStr() + 'T00:00:00');
-  while (true) {
-    const ds = d.toISOString().split('T')[0];
-    const r = recs[ds];
-    if (r && (r.meals || []).length > 0) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else {
-      break;
-    }
+  const recs=getRecs(); let s=0;
+  const d=new Date(todayStr()+'T00:00:00');
+  while(true){
+    const ds=d.toISOString().split('T')[0];
+    const r=recs[ds];
+    if (r&&(r.meals||[]).length>0){s++;d.setDate(d.getDate()-1);}
+    else break;
   }
-  return streak;
+  return s;
 }
 
-// Count days where a condition was met
-function countDaysMet(condFn) {
-  const recs = getRecs();
-  const goals = getGoals();
-  let count = 0;
-  Object.values(recs).forEach(rec => {
-    const meals = rec.meals || [];
-    if (!meals.length) return;
-    if (condFn(totals(meals), goals)) count++;
-  });
-  return count;
+// ════════════════════════════════════════════════
+// MISSIONS
+// ════════════════════════════════════════════════
+function getMissions(rec, goals) {
+  const m=rec.meals||[], t=totals(m);
+  return [
+    {id:'mw', icon:'⚖️', label:'体重を入力する',      done:rec.weight!=null,          xp:20 },
+    {id:'mp', icon:'💪', label:'タンパク質100g以上達成',done:m.length>0&&t.protein>=100, xp:100},
+    {id:'m3', icon:'🍽️', label:'食事を3回以上記録',    done:m.length>=3,               xp:30 },
+  ];
 }
 
-// Check & award badges. Returns array of newly earned badge ids.
-function checkAndAwardBadges() {
-  const game = getGame();
-  const earned = new Set(game.badges.map(b => b.id));
-  const newly = [];
-
-  const recs = getRecs();
-  const allMeals = Object.values(recs).flatMap(r => r.meals || []);
-  const streak = computeStreak();
-  const xp = computeXP();
-  const { level } = xpToLevel(xp);
-  const goals = getGoals();
-  const proteinDays = countDaysMet((t,g) => t.protein >= g.protein);
-  const calDays     = countDaysMet((t,g) => t.calories >= g.calories);
-
-  const conditions = {
-    first_record: allMeals.length >= 1,
-    streak_3:     streak >= 3,
-    streak_7:     streak >= 7,
-    protein_5:    proteinDays >= 5,
-    cal_5:        calDays >= 5,
-    lv10:         level >= 10,
+// ════════════════════════════════════════════════
+// BADGES
+// ════════════════════════════════════════════════
+function checkBadges() {
+  const game=getGame(), earned=new Set(game.badges.map(b=>b.id));
+  const recs=getRecs(), goals=getGoals();
+  const streak=computeStreak();
+  const {level}=xpInfo(computeXP());
+  const allMeals=Object.values(recs).flatMap(r=>r.meals||[]);
+  function metDays(fn){return Object.values(recs).filter(r=>(r.meals||[]).length>0&&fn(totals(r.meals),r)).length}
+  const conds = {
+    first:    allMeals.length>=1,
+    streak3:  streak>=3,
+    streak7:  streak>=7,
+    streak30: streak>=30,
+    protein5: metDays(t=>t.protein>=goals.protein)>=5,
+    cal5:     metDays(t=>t.calories>=goals.calories)>=5,
+    highscore:Object.values(recs).some(r=>calcScore(r,goals)>=90),
+    lv10:     level>=10,
+    meal50:   allMeals.length>=50,
   };
-
-  BADGE_DEFS.forEach(def => {
-    if (!earned.has(def.id) && conditions[def.id]) {
-      game.badges.push({ id: def.id, earnedAt: todayStr() });
+  const newly=[];
+  BADGE_DEFS.forEach(def=>{
+    if (!earned.has(def.id)&&conds[def.id]){
+      game.badges.push({id:def.id,earnedAt:todayStr()});
       newly.push(def.id);
     }
   });
-
   if (newly.length) saveGame(game);
   return newly;
 }
 
-// =====================================================================
-// GAMIFICATION — UI
-// =====================================================================
-
-function renderGameBar() {
-  const xp = computeXP();
-  const { level, inLevel, nextXP } = xpToLevel(xp);
-  const streak = computeStreak();
-  const pct = Math.round((inLevel / nextXP) * 100);
-
-  document.getElementById('gameBar').innerHTML = `
-    <div class="game-bar-left">
-      <span class="lv-badge">Lv.${level}</span>
-      <div class="xp-track">
-        <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
-        <div class="xp-label">${inLevel} / ${nextXP} XP</div>
-      </div>
-    </div>
-    <span class="streak-chip${streak === 0 ? ' cold' : ''}">
-      ${streak > 0 ? '🔥' : '❄️'} ${streak}日連続
-    </span>`;
+// ════════════════════════════════════════════════
+// STATUS
+// ════════════════════════════════════════════════
+function computeStatus() {
+  const recs=getRecs(), goals=getGoals(), streak=computeStreak();
+  const active=Object.values(recs).filter(r=>(r.meals||[]).length>0);
+  const last7=[]; for(let i=0;i<7;i++){const d=new Date(todayStr()+'T00:00:00');d.setDate(d.getDate()-i);const r=recs[d.toISOString().split('T')[0]];if(r&&(r.meals||[]).length)last7.push(calcScore(r,goals));}
+  const avgScore=last7.length?Math.round(last7.reduce((a,b)=>a+b,0)/last7.length):0;
+  const calAvg=active.length?active.reduce((s,r)=>s+totals(r.meals).calories,0)/active.length:0;
+  const proAvg=active.length?active.reduce((s,r)=>s+totals(r.meals).protein,0)/active.length:0;
+  return {
+    persistence: Math.min(streak*5,100),
+    nutrition:   avgScore,
+    bulking:     Math.min(pctOf(calAvg,goals.calories),100),
+    recovery:    Math.min(pctOf(proAvg,goals.protein),100),
+  };
 }
 
-function renderMissions() {
-  const rec = getRec(curDate);
-  const goals = getGoals();
-  const meals = rec.meals || [];
-  const tot = totals(meals);
+// ════════════════════════════════════════════════
+// RENDER: HEADER
+// ════════════════════════════════════════════════
+function renderHeader() {
+  const xp=computeXP(), {level,inLv}=xpInfo(xp);
+  const streak=computeStreak();
+  const rec=getRec(curDate), goals=getGoals();
+  const score=calcScore(rec,goals), rank=getRank(score);
+  const pct=Math.round(inLv/XP_PER_LV*100);
 
-  const missions = [
-    { id:'m_meals3',   label:'食事を3回記録する',      done: meals.length >= 3,                         xp: 30,  icon:'🍽️' },
-    { id:'m_protein',  label:'タンパク質目標を達成する', done: meals.length>0 && tot.protein>=goals.protein, xp: 100, icon:'💪' },
-    { id:'m_calories', label:'カロリー目標を達成する',   done: meals.length>0 && tot.calories>=goals.calories, xp: 50,  icon:'🔥' },
+  document.getElementById('hdrDate').textContent=fmtDate(curDate);
+  document.getElementById('chipLv').textContent=`Lv.${level}`;
+  const sc=document.getElementById('chipStr');
+  sc.textContent=streak>0?`🔥 ${streak}日連続`:'❄️ 0日'; sc.style.opacity=streak>0?'1':'.5';
+  const rb=document.getElementById('rankBadge');
+  rb.textContent=rank.r; rb.className='rank-badge '+rank.cls;
+  document.getElementById('xpFill').style.width=pct+'%';
+  document.getElementById('xpTxt').textContent=`${inLv} / ${XP_PER_LV} XP`;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: WEIGHT CARD (only update value/status, not HTML)
+// ════════════════════════════════════════════════
+function updateWeightCard() {
+  const rec=getRec(curDate);
+  const el=document.getElementById('weightInput');
+  if (document.activeElement!==el) el.value=rec.weight!=null?rec.weight:'';
+  document.getElementById('wStatus').innerHTML=rec.weight!=null
+    ?`<span class="w-ok">✅ 記録済み — ${rec.weight} kg</span>`
+    :'<span class="w-no">未入力（入力で +20 XP）</span>';
+  document.getElementById('wXpHint').style.display=rec.weight!=null?'block':'none';
+}
+
+// ════════════════════════════════════════════════
+// RENDER: STAT GRID + SCORE
+// ════════════════════════════════════════════════
+function renderStats() {
+  const rec=getRec(curDate), goals=getGoals(), tot=totals(rec.meals);
+  const score=calcScore(rec,goals), rank=getRank(score);
+
+  const cards=[
+    {cl:'re',icon:'🔥',lbl:'カロリー',  v:Math.round(tot.calories),u:'kcal',sub:`目標 ${goals.calories} kcal`,p:pctOf(tot.calories,goals.calories)},
+    {cl:'cy',icon:'💪',lbl:'たんぱく質',v:tot.protein.toFixed(1), u:'g',   sub:`目標 ${goals.protein} g`,   p:pctOf(tot.protein,goals.protein)},
+    {cl:'am',icon:'🧈',lbl:'脂質',      v:tot.fat.toFixed(1),     u:'g',   sub:`目標 ${goals.fat} g`,       p:pctOf(tot.fat,goals.fat)},
+    {cl:'pu',icon:'🌾',lbl:'炭水化物',  v:tot.carbs.toFixed(1),   u:'g',   sub:`目標 ${goals.carbs} g`,     p:pctOf(tot.carbs,goals.carbs)},
   ];
 
-  document.getElementById('missionsSection').innerHTML = missions.map(m => `
-    <div class="mission-item">
-      <div class="mission-check${m.done ? ' done' : ''}">${m.done ? '✓' : ''}</div>
-      <div class="mission-info">
-        <div class="mission-label${m.done ? ' done' : ''}">${m.icon} ${m.label}</div>
-        <div class="mission-xp${m.done ? ' done' : ''}">+${m.xp} XP${m.done ? '　達成！' : ''}</div>
+  const pc=p=>p>=100?'var(--amber)':p>=80?'var(--green)':p>=50?'var(--cyan)':'var(--red)';
+
+  const statHtml=cards.map(c=>`
+    <div class="scard ${c.cl}">
+      <div class="sl">${c.icon} ${c.lbl}</div>
+      <div class="sv">${c.v}<span class="su"> ${c.u}</span></div>
+      <div class="ss">${c.sub}</div>
+      <div class="sp" style="color:${pc(c.p)}">${c.p}%</div>
+    </div>`).join('');
+
+  const scoreHtml=`
+    <div class="score-card" style="border-color:${score>=90?'rgba(234,179,8,.35)':score>=75?'rgba(0,212,255,.28)':score>=55?'rgba(34,197,94,.22)':'var(--b1)'}">
+      <div class="score-top">TODAY'S SCORE</div>
+      <div class="score-num ${rank.sc}">${score}</div>
+      <div class="rank-pill rank-badge ${rank.cls}" style="margin:8px auto 0">${rank.r} ランク</div>
+    </div>`;
+
+  document.getElementById('statGrid').innerHTML=statHtml+scoreHtml;
+}
+
+// ════════════════════════════════════════════════
+// RENDER: GAUGES
+// ════════════════════════════════════════════════
+function renderGauges() {
+  const rec=getRec(curDate), goals=getGoals(), tot=totals(rec.meals);
+  const items=[
+    {lbl:'🔥 カロリー',  v:Math.round(tot.calories),g:goals.calories,cl:'gc'},
+    {lbl:'💪 たんぱく質',v:tot.protein.toFixed(1),  g:goals.protein, cl:'gp'},
+    {lbl:'🧈 脂質',      v:tot.fat.toFixed(1),      g:goals.fat,     cl:'gf'},
+    {lbl:'🌾 炭水化物',  v:tot.carbs.toFixed(1),    g:goals.carbs,   cl:'gb'},
+  ];
+  const pc=p=>p>=100?'var(--amber)':p>=80?'var(--green)':p>=50?'var(--cyan)':'var(--muted)';
+  document.getElementById('gaugeArea').innerHTML=items.map(item=>{
+    const p=pctOf(parseFloat(item.v),item.g), w=Math.min(p,100);
+    return `<div class="gauge-item">
+      <div class="gh">
+        <span class="g-lbl">${item.lbl}</span>
+        <span class="g-vals">${item.v} / ${item.g}</span>
+        <span class="g-pct" style="color:${pc(p)}">${p}%</span>
+      </div>
+      <div class="g-track"><div class="g-fill ${item.cl}" style="width:${w}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// RENDER: MISSIONS
+// ════════════════════════════════════════════════
+function renderMissions() {
+  const rec=getRec(curDate), goals=getGoals();
+  const ms=getMissions(rec,goals);
+  document.getElementById('missionList').innerHTML=ms.map(m=>`
+    <div class="mi${m.done?' done':''}" id="mi-${m.id}">
+      <div class="mi-icon">${m.done?'✓':m.icon}</div>
+      <div class="mi-info">
+        <div class="mi-lbl">${m.label}</div>
+        <div class="mi-xp">${m.done?'✅ 達成！':`+${m.xp} XP`}</div>
       </div>
     </div>`).join('');
 }
 
-function renderGameTab() {
-  const xp = computeXP();
-  const { level, inLevel, nextXP } = xpToLevel(xp);
-  const streak = computeStreak();
-  const pct = Math.round((inLevel / nextXP) * 100);
-  const game = getGame();
-  const earnedIds = new Set(game.badges.map(b => b.id));
-  const proteinDays = countDaysMet((t,g) => t.protein >= g.protein);
-  const calDays     = countDaysMet((t,g) => t.calories >= g.calories);
-  const recs = getRecs();
-  const totalMeals  = Object.values(recs).reduce((s,r) => s+(r.meals||[]).length, 0);
-
-  document.getElementById('gameStatus').innerHTML = `
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-      <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:36px;font-weight:900;width:72px;height:72px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        ${level}
-      </div>
-      <div style="flex:1">
-        <div style="font-size:20px;font-weight:800;color:#2c3e50;margin-bottom:4px">レベル ${level}</div>
-        <div class="xp-bar" style="height:14px;margin-bottom:4px">
-          <div class="xp-fill" style="width:${pct}%"></div>
-        </div>
-        <div style="font-size:12px;color:#aaa">${inLevel} / ${nextXP} XP（次のレベルまで ${nextXP - inLevel} XP）</div>
-      </div>
-    </div>
-    <div class="game-stat-row"><span class="game-stat-label">🔥 連続記録</span><span class="game-stat-val">${streak}日</span></div>
-    <div class="game-stat-row"><span class="game-stat-label">📊 累計XP</span><span class="game-stat-val">${xp} XP</span></div>
-    <div class="game-stat-row"><span class="game-stat-label">🍽️ 記録した食事数</span><span class="game-stat-val">${totalMeals}回</span></div>
-    <div class="game-stat-row"><span class="game-stat-label">💪 タンパク質目標達成</span><span class="game-stat-val">${proteinDays}日</span></div>
-    <div class="game-stat-row"><span class="game-stat-label">🔋 カロリー目標達成</span><span class="game-stat-val">${calDays}日</span></div>
-    <div class="game-stat-row"><span class="game-stat-label">🎖️ 獲得バッジ</span><span class="game-stat-val">${game.badges.length} / ${BADGE_DEFS.length}</span></div>`;
-
-  document.getElementById('badgeGrid').innerHTML = BADGE_DEFS.map(def => {
-    const b = game.badges.find(x => x.id === def.id);
-    return b
-      ? `<div class="badge-card earned">
-           <div class="badge-emoji">${def.emoji}</div>
-           <div class="badge-name">${def.name}</div>
-           <div class="badge-desc">${def.desc}</div>
-           <div class="badge-earned-date">🏅 ${b.earnedAt} 獲得</div>
-         </div>`
-      : `<div class="badge-card locked">
-           <div class="badge-emoji" style="filter:grayscale(1)">🔒</div>
-           <div class="badge-name">${def.name}</div>
-           <div class="badge-desc">${def.desc}</div>
-           <div class="badge-locked-label">条件：${def.condition}</div>
-         </div>`;
-  }).join('');
+// ════════════════════════════════════════════════
+// RENDER: QUICK BUTTONS
+// ════════════════════════════════════════════════
+function renderQuick() {
+  const t=getTmpl();
+  document.getElementById('quickBtns').innerHTML=t.length
+    ?t.map(x=>`<button class="qbtn" onclick="quickAdd('${x.id}')">＋ ${esc(x.name)}</button>`).join('')
+    :'<span style="color:var(--muted);font-size:13px">設定からテンプレートを登録してください</span>';
 }
 
-// Show level-up popup
-function showLevelUp(level) {
-  const msgs = ['', '素晴らしいスタート！', 'どんどん記録しよう！', '習慣になってきた！',
-    'いい調子！', '継続は力なり！', 'プロ級の記録力！', '止まらないぞ！',
-    '本物の戦士！', '上級者の域に！', 'レジェンド達成！'];
-  const msg = msgs[level] || `レベル${level}の実力者！`;
-  document.getElementById('rewardContent').innerHTML = `
-    <div class="reward-icon">🎉</div>
-    <div class="reward-title">レベルアップ！ Lv.${level}</div>
-    <div class="reward-sub">${msg}<br>このまま続けよう！</div>
-    <button class="reward-btn" onclick="closeReward()">やった！</button>`;
-  document.getElementById('rewardModal').classList.add('show');
-}
-
-// Show badge popup
-function showBadgePopup(badgeId) {
-  const def = BADGE_DEFS.find(b => b.id === badgeId);
-  if (!def) return;
-  document.getElementById('rewardContent').innerHTML = `
-    <div class="reward-icon">${def.emoji}</div>
-    <div class="reward-title">バッジ獲得！</div>
-    <div class="reward-sub"><b>「${def.name}」</b>を手に入れた！<br>${def.desc}</div>
-    <button class="reward-btn" onclick="closeReward()">いえーい！</button>`;
-  document.getElementById('rewardModal').classList.add('show');
-}
-
-function closeReward() {
-  document.getElementById('rewardModal').classList.remove('show');
-  // If there are more queued rewards, show next
-  if (rewardQueue.length) {
-    const next = rewardQueue.shift();
-    next();
-  }
-}
-
-let rewardQueue = [];
-
-// Called after any meal mutation to run all gamification checks
-function runGameChecks(prevXP) {
-  const newXP = computeXP();
-  const prevLv = xpToLevel(prevXP).level;
-  const newLv  = xpToLevel(newXP).level;
-
-  renderGameBar();
-  renderMissions();
-
-  // Queue notifications so they don't overlap
-  rewardQueue = [];
-
-  // Badge check first
-  const newBadges = checkAndAwardBadges();
-  newBadges.forEach(id => rewardQueue.push(() => showBadgePopup(id)));
-
-  // Level up check
-  if (newLv > prevLv) {
-    rewardQueue.push(() => showLevelUp(newLv));
-  }
-
-  // Show first queued reward
-  if (rewardQueue.length) {
-    const first = rewardQueue.shift();
-    first();
-  }
-}
-
-// =====================================================================
-// STATE
-// =====================================================================
-let curDate = todayStr();
-let curTab  = 'today';
-let wChart  = null;
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-
-function fmtDate(ds) {
-  const d = new Date(ds + 'T00:00:00');
-  const days = ['日','月','火','水','木','金','土'];
-  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
-}
-function fmtShort(ds) {
-  const d = new Date(ds + 'T00:00:00');
-  const days = ['日','月','火','水','木','金','土'];
-  return `${d.getMonth()+1}/${d.getDate()}（${days[d.getDay()]}）`;
-}
-
-// =====================================================================
-// UTILS
-// =====================================================================
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 2200);
-}
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function catLabel(c) { return {breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'}[c]||c; }
-function totals(meals) {
-  return (meals||[]).reduce((a,m) => ({
-    calories: a.calories + (+m.calories||0),
-    protein:  a.protein  + (+m.protein ||0),
-    fat:      a.fat      + (+m.fat     ||0),
-    carbs:    a.carbs    + (+m.carbs   ||0),
-  }), { calories:0, protein:0, fat:0, carbs:0 });
-}
-function pct(v, g) { return g ? Math.min(Math.round(v/g*100), 999) : 0; }
-function pctClass(p) {
-  if (p >= 100) return 'pct-over';
-  if (p >= 80)  return 'pct-ok';
-  return 'pct-warn';
-}
-
-// =====================================================================
-// DATE NAV
-// =====================================================================
-function changeDate(delta) {
-  const d = new Date(curDate + 'T00:00:00');
-  d.setDate(d.getDate() + delta);
-  curDate = d.toISOString().split('T')[0];
-  document.getElementById('currentDate').value = curDate;
-  renderTab();
-}
-function onDateChange() {
-  curDate = document.getElementById('currentDate').value;
-  renderTab();
-}
-function goToToday() {
-  curDate = todayStr();
-  document.getElementById('currentDate').value = curDate;
-  renderTab();
-}
-
-// =====================================================================
-// TABS
-// =====================================================================
-const TABS = ['today','past','weight','weekly','templates','goals','game'];
-
-function switchTab(tab) {
-  curTab = tab;
-  document.querySelectorAll('.nav-tab').forEach((el, i) => el.classList.toggle('active', TABS[i] === tab));
-  TABS.forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
-  renderTab();
-}
-function renderTab() {
-  if      (curTab === 'today')     renderToday();
-  else if (curTab === 'past')      renderPast();
-  else if (curTab === 'weight')    renderWeight();
-  else if (curTab === 'weekly')    renderWeekly();
-  else if (curTab === 'templates') renderTemplates();
-  else if (curTab === 'goals')     renderGoals();
-  else if (curTab === 'game')      renderGameTab();
-}
-
-// =====================================================================
-// TODAY
-// =====================================================================
-function renderToday() {
-  const rec   = getRec(curDate);
-  const goals = getGoals();
-  const tot   = totals(rec.meals);
-
-  document.getElementById('weightInput').value = rec.weight != null ? rec.weight : '';
-
-  renderMissions();
-
-  // Stats
-  const items = [
-    { label:'🔥 カロリー',   val: Math.round(tot.calories), unit:'kcal', goal: goals.calories },
-    { label:'💪 たんぱく質', val: tot.protein.toFixed(1),    unit:'g',    goal: goals.protein },
-    { label:'🧈 脂質',       val: tot.fat.toFixed(1),        unit:'g',    goal: goals.fat },
-    { label:'🌾 炭水化物',   val: tot.carbs.toFixed(1),      unit:'g',    goal: goals.carbs },
-  ];
-  document.getElementById('todayStats').innerHTML = items.map(item => {
-    const p = pct(parseFloat(item.val), item.goal);
-    return `<div class="stat-card">
-      <div class="stat-label">${item.label}</div>
-      <div class="stat-value">${item.val}<span class="stat-unit"> ${item.unit}</span></div>
-      <div class="stat-goal">目標 ${item.goal}${item.unit}</div>
-      <div class="stat-pct ${pctClass(p)}">${p}%</div>
-    </div>`;
-  }).join('');
-
-  // Progress bars
-  const progs = [
-    { label:'カロリー',   v: Math.round(tot.calories), g: goals.calories, cls:'p-cal'  },
-    { label:'たんぱく質', v: tot.protein.toFixed(1),    g: goals.protein,  cls:'p-pro'  },
-    { label:'脂質',       v: tot.fat.toFixed(1),        g: goals.fat,      cls:'p-fat'  },
-    { label:'炭水化物',   v: tot.carbs.toFixed(1),      g: goals.carbs,    cls:'p-carb' },
-  ];
-  document.getElementById('progressSection').innerHTML = progs.map(p => {
-    const pv = pct(parseFloat(p.v), p.g);
-    return `<div class="progress-wrap">
-      <div class="progress-head"><b>${p.label}</b><span>${p.v} / ${p.g}　<b class="${pctClass(pv)}">${pv}%</b></span></div>
-      <div class="progress-bar"><div class="progress-fill ${p.cls}" style="width:${Math.min(pv,100)}%"></div></div>
-    </div>`;
-  }).join('');
-
-  // Quick buttons
-  const tmpls = getTmpl();
-  document.getElementById('quickBtns').innerHTML = tmpls.length
-    ? tmpls.map(t => `<button class="quick-btn" onclick="quickAdd('${t.id}')">＋ ${esc(t.name)}</button>`).join('')
-    : '<span style="color:#bbb;font-size:13px">テンプレートを登録するとここに表示されます</span>';
-
-  // Meal list
-  const meals = rec.meals || [];
-  if (!meals.length) {
-    document.getElementById('mealList').innerHTML = `<div class="empty"><div class="empty-icon">🍽️</div><div>まだ記録がありません<br>上のフォームから追加してください</div></div>`;
+// ════════════════════════════════════════════════
+// RENDER: MEAL LIST
+// ════════════════════════════════════════════════
+function renderMeals() {
+  const meals=getRec(curDate).meals||[];
+  if (!meals.length){
+    document.getElementById('mealList').innerHTML='<div class="empty"><div class="ei">🍽️</div><div>まだ食事が記録されていません</div></div>';
     return;
   }
-  const order = ['breakfast','lunch','dinner','snack'];
-  let html = '';
-  order.forEach(cat => {
-    meals.filter(m => m.category === cat).forEach(m => {
-      html += `<div class="meal-item">
-        <div class="meal-head">
-          <div>
-            <span class="meal-cat cat-${cat}">${catLabel(cat)}</span>
-            <div class="meal-name">${esc(m.name)}</div>
-          </div>
-          <div class="meal-actions">
-            <button class="btn btn-sec" onclick="openEdit('${m.id}')">編集</button>
-            <button class="btn btn-danger" onclick="delMeal('${m.id}')">削除</button>
+  const order=['breakfast','lunch','dinner','snack'];
+  const catcls={breakfast:'cbr',lunch:'clu',dinner:'cdi',snack:'csn'};
+  let html='';
+  order.forEach(cat=>{
+    meals.filter(m=>m.category===cat).forEach(m=>{
+      html+=`<div class="meal-item">
+        <div class="mh">
+          <div><span class="mcat ${catcls[cat]}">${catLabel(cat)}</span><div class="mn">${esc(m.name)}</div></div>
+          <div class="mact">
+            <button class="btn btn-e" onclick="openEdit('${m.id}')">編集</button>
+            <button class="btn btn-d" onclick="delMeal('${m.id}')">削除</button>
           </div>
         </div>
-        <div class="meal-nums">
+        <div class="mnums">
           <span>🔥 ${Math.round(m.calories)} kcal</span>
           <span>P: ${(+m.protein).toFixed(1)}g</span>
           <span>F: ${(+m.fat).toFixed(1)}g</span>
@@ -935,343 +800,392 @@ function renderToday() {
       </div>`;
     });
   });
-  document.getElementById('mealList').innerHTML = html;
+  document.getElementById('mealList').innerHTML=html;
 }
 
-function saveWeight() {
-  const v = parseFloat(document.getElementById('weightInput').value);
-  const rec = getRec(curDate);
-  rec.weight = isNaN(v) ? null : v;
-  saveRec(curDate, rec);
+// ════════════════════════════════════════════════
+// RENDER: BADGES
+// ════════════════════════════════════════════════
+function renderBadges() {
+  const game=getGame();
+  const em=Object.fromEntries(game.badges.map(b=>[b.id,b.earnedAt]));
+  document.getElementById('badgeGrid').innerHTML=BADGE_DEFS.map(d=>{
+    const e=em[d.id];
+    return e
+      ?`<div class="bc earned"><span class="be">${d.e}</span><div class="bn">${d.n}</div><div class="bdate">${e}</div></div>`
+      :`<div class="bc locked"><span class="be">🔒</span><div class="bn">${d.n}</div><div class="bcond">${d.c}</div></div>`;
+  }).join('');
 }
 
-function addMeal() {
-  const name = document.getElementById('mealName').value.trim();
-  if (!name) { showToast('⚠️ 食品名を入力してください'); return; }
-  const prevXP = computeXP();
-  const meal = {
-    id:       genId(),
-    category: document.getElementById('mealCategory').value,
-    name,
-    calories: parseFloat(document.getElementById('mealCalories').value) || 0,
-    protein:  parseFloat(document.getElementById('mealProtein').value)  || 0,
-    fat:      parseFloat(document.getElementById('mealFat').value)      || 0,
-    carbs:    parseFloat(document.getElementById('mealCarbs').value)    || 0,
-  };
-  const rec = getRec(curDate);
-  rec.meals = rec.meals || [];
-  rec.meals.push(meal);
-  saveRec(curDate, rec);
-  ['mealName','mealCalories','mealProtein','mealFat','mealCarbs'].forEach(id => document.getElementById(id).value = '');
-  showToast('✅ 追加しました！ +10 XP');
-  renderToday();
-  runGameChecks(prevXP);
+// ════════════════════════════════════════════════
+// RENDER: STATUS
+// ════════════════════════════════════════════════
+function renderStatus() {
+  const st=computeStatus();
+  const items=[
+    {l:'継続力',   v:st.persistence, col:'var(--cyan)',  bg:'gp'},
+    {l:'栄養管理力',v:st.nutrition,   col:'var(--green)', bg:'gc'},
+    {l:'増量力',   v:st.bulking,     col:'var(--amber)', bg:'gf'},
+    {l:'回復力',   v:st.recovery,    col:'var(--purp)',  bg:'gb'},
+  ];
+  document.getElementById('statusGrid').innerHTML=items.map(i=>`
+    <div class="stcard">
+      <div class="stl">${i.l}</div>
+      <div class="stv" style="color:${i.col}">${i.v}</div>
+      <div class="stbar"><div class="stfill ${i.bg}" style="width:${i.v}%"></div></div>
+    </div>`).join('');
 }
 
-function quickAdd(id) {
-  const t = getTmpl().find(x => x.id === id);
-  if (!t) return;
-  const prevXP = computeXP();
-  const rec = getRec(curDate);
-  rec.meals = rec.meals || [];
-  rec.meals.push({ id: genId(), category: t.category, name: t.name, calories: t.calories, protein: t.protein, fat: t.fat, carbs: t.carbs });
-  saveRec(curDate, rec);
-  showToast(`✅ 「${t.name}」を追加！ +10 XP`);
-  renderToday();
-  runGameChecks(prevXP);
-}
-
-function delMeal(id) {
-  if (!confirm('この食事を削除しますか？')) return;
-  const rec = getRec(curDate);
-  rec.meals = (rec.meals||[]).filter(m => m.id !== id);
-  saveRec(curDate, rec);
-  showToast('🗑️ 削除しました');
-  renderToday();
-  renderGameBar();
-  renderMissions();
-}
-
-// =====================================================================
-// EDIT MODAL
-// =====================================================================
-function openEdit(id) {
-  const m = (getRec(curDate).meals||[]).find(x => x.id === id);
-  if (!m) return;
-  document.getElementById('editId').value = id;
-  document.getElementById('editCategory').value = m.category;
-  document.getElementById('editName').value = m.name;
-  document.getElementById('editCalories').value = m.calories;
-  document.getElementById('editProtein').value = m.protein;
-  document.getElementById('editFat').value = m.fat;
-  document.getElementById('editCarbs').value = m.carbs;
-  document.getElementById('editModal').classList.add('show');
-}
-function closeModal() { document.getElementById('editModal').classList.remove('show'); }
-function saveEdit() {
-  const id = document.getElementById('editId').value;
-  const rec = getRec(curDate);
-  const idx = (rec.meals||[]).findIndex(m => m.id === id);
-  if (idx < 0) return;
-  const prevXP = computeXP();
-  rec.meals[idx] = {
-    ...rec.meals[idx],
-    category: document.getElementById('editCategory').value,
-    name:     document.getElementById('editName').value.trim(),
-    calories: parseFloat(document.getElementById('editCalories').value) || 0,
-    protein:  parseFloat(document.getElementById('editProtein').value)  || 0,
-    fat:      parseFloat(document.getElementById('editFat').value)      || 0,
-    carbs:    parseFloat(document.getElementById('editCarbs').value)    || 0,
-  };
-  saveRec(curDate, rec);
-  closeModal();
-  showToast('✅ 更新しました！');
-  renderToday();
-  runGameChecks(prevXP);
-}
-document.getElementById('editModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.getElementById('rewardModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeReward(); });
-
-// =====================================================================
-// PAST
-// =====================================================================
-function renderPast() {
-  const recs = getRecs();
-  const dates = Object.keys(recs).sort().reverse();
-  if (!dates.length) {
-    document.getElementById('pastRecords').innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div>まだ記録がありません</div></div>`;
-    return;
+// ════════════════════════════════════════════════
+// RENDER: WEIGHT CHART
+// ════════════════════════════════════════════════
+function renderChart() {
+  const recs=getRecs(), today=new Date(), labels=[], data=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    labels.push(`${d.getMonth()+1}/${d.getDate()}`);
+    const r=recs[ds]; data.push(r&&r.weight!=null?r.weight:null);
   }
-  document.getElementById('pastRecords').innerHTML = dates.map(d => {
-    const r = recs[d];
-    const tot = totals(r.meals);
-    const isToday = d === todayStr();
+  const ctx=document.getElementById('weightChart').getContext('2d');
+  if (wChart) wChart.destroy();
+  wChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{
+      label:'体重(kg)',data,
+      borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.07)',
+      fill:true,tension:.4,pointRadius:4,spanGaps:true,
+      pointBackgroundColor:'#00d4ff',pointBorderColor:'#080d18',pointBorderWidth:2,
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' kg'}}},
+      scales:{
+        y:{beginAtZero:false,ticks:{callback:v=>v+'kg',color:'#475569'},grid:{color:'rgba(255,255,255,.04)'}},
+        x:{ticks:{maxTicksLimit:10,color:'#475569'},grid:{color:'rgba(255,255,255,.04)'}},
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════════
+// RENDER: PAST
+// ════════════════════════════════════════════════
+function renderPast() {
+  const recs=getRecs(), goals=getGoals();
+  const dates=Object.keys(recs).sort().reverse();
+  if (!dates.length){document.getElementById('pastRecs').innerHTML='<div class="empty"><div>記録がありません</div></div>';return;}
+  document.getElementById('pastRecs').innerHTML=dates.slice(0,40).map(d=>{
+    const r=recs[d], tot=totals(r.meals), sc=calcScore(r,goals), rk=getRank(sc);
+    const isTd=d===todayStr();
     return `<div class="past-item" onclick="goDate('${d}')">
-      <div class="past-date">${fmtDate(d)}${isToday ? '<span class="tag-new">今日</span>' : ''}</div>
-      <div class="past-summary">
-        体重: ${r.weight != null ? r.weight + ' kg' : '未記録'} &nbsp;｜&nbsp;
-        ${Math.round(tot.calories)} kcal &nbsp;｜&nbsp;
-        P: ${tot.protein.toFixed(1)}g &nbsp;F: ${tot.fat.toFixed(1)}g &nbsp;C: ${tot.carbs.toFixed(1)}g<br>
-        食事 ${(r.meals||[]).length}件
+      <div class="past-date">${fmtDate(d)}${isTd?'<span class="tag-td">今日</span>':''}</div>
+      <div class="past-sum">
+        スコア: <b style="color:var(--cyan)">${sc}点 [${rk.r}]</b> ｜
+        体重: ${r.weight!=null?r.weight+' kg':'未記録'} ｜
+        ${Math.round(tot.calories)} kcal ｜ P: ${tot.protein.toFixed(1)}g ｜ 食事 ${(r.meals||[]).length}件
       </div>
     </div>`;
   }).join('');
 }
-function goDate(d) {
-  curDate = d;
-  document.getElementById('currentDate').value = d;
-  switchTab('today');
-}
 
-// =====================================================================
-// WEIGHT CHART
-// =====================================================================
-function renderWeight() {
-  const recs = getRecs();
-  const today = new Date();
-  const labels = [], data = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-    const r = recs[ds];
-    data.push(r && r.weight != null ? r.weight : null);
-  }
-  const ctx = document.getElementById('weightChart').getContext('2d');
-  if (wChart) wChart.destroy();
-  wChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [{
-      label: '体重 (kg)', data,
-      borderColor: '#4a90d9', backgroundColor: 'rgba(74,144,217,0.12)',
-      fill: true, tension: 0.4, pointRadius: 5,
-      pointBackgroundColor: '#4a90d9', pointBorderColor: '#fff', pointBorderWidth: 2,
-      spanGaps: true,
-    }]},
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' kg' } } },
-      scales: {
-        y: { beginAtZero: false, ticks: { callback: v => v + ' kg' } },
-        x: { ticks: { maxTicksLimit: 10 } }
-      }
-    }
-  });
-  const entries = Object.entries(recs).filter(([,r]) => r.weight != null).sort((a,b) => b[0].localeCompare(a[0])).slice(0,30);
-  document.getElementById('weightList').innerHTML = entries.length
-    ? entries.map(([d,r]) => `<div class="weekly-row"><span class="weekly-label">${fmtShort(d)}</span><span class="weekly-val">${r.weight} kg</span></div>`).join('')
-    : `<div class="empty"><div>体重の記録がありません</div></div>`;
-}
-
-// =====================================================================
-// WEEKLY
-// =====================================================================
-function renderWeekly() {
-  const recs = getRecs();
-  const today = new Date();
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    const r = recs[ds];
-    if (r && (r.meals||[]).length) days.push({ date: ds, ...totals(r.meals) });
-  }
-  if (!days.length) {
-    document.getElementById('weeklyStats').innerHTML = `<div class="empty"><div>まだデータがありません。<br>今日から記録を始めましょう！</div></div>`;
-    return;
-  }
-  const n = days.length;
-  const avg = {
-    calories: days.reduce((s,d)=>s+d.calories,0)/n,
-    protein:  days.reduce((s,d)=>s+d.protein,0)/n,
-    fat:      days.reduce((s,d)=>s+d.fat,0)/n,
-    carbs:    days.reduce((s,d)=>s+d.carbs,0)/n,
-  };
-  const goals = getGoals();
-  document.getElementById('weeklyStats').innerHTML = `
-    <p class="section-note">過去7日間のうち記録がある<b>${n}日分</b>の平均値</p>
-    <div class="weekly-row"><span class="weekly-label">🔥 平均カロリー</span><span class="weekly-val">${Math.round(avg.calories)} kcal / 日</span></div>
-    <div class="weekly-row"><span class="weekly-label">💪 平均たんぱく質</span><span class="weekly-val">${avg.protein.toFixed(1)} g / 日</span></div>
-    <div class="weekly-row"><span class="weekly-label">🧈 平均脂質</span><span class="weekly-val">${avg.fat.toFixed(1)} g / 日</span></div>
-    <div class="weekly-row"><span class="weekly-label">🌾 平均炭水化物</span><span class="weekly-val">${avg.carbs.toFixed(1)} g / 日</span></div>
-    <div style="margin-top:20px">
-      <div class="card-title" style="margin-bottom:12px">📊 日別カロリー</div>
-      ${days.map(d => {
-        const p = Math.min(pct(d.calories, goals.calories), 100);
-        return `<div style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-            <span>${fmtShort(d.date)}</span><span>${Math.round(d.calories)} kcal</span>
+// ════════════════════════════════════════════════
+// RENDER: SETTINGS
+// ════════════════════════════════════════════════
+function renderSettings() {
+  const g=getGoals(), t=getTmpl();
+  const catcls={breakfast:'cbr',lunch:'clu',dinner:'cdi',snack:'csn'};
+  document.getElementById('setContent').innerHTML=`
+    <div class="card" style="margin-top:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:14px">🎯 1日の目標値</div>
+      <div class="fg"><label class="fl">目標カロリー (kcal)</label><input type="number" id="gCal" class="fi" value="${g.calories}"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">たんぱく質 (g)</label><input type="number" id="gPro" class="fi" value="${g.protein}"></div>
+        <div class="fg"><label class="fl">脂質 (g)</label><input type="number" id="gFat" class="fi" value="${g.fat}"></div>
+      </div>
+      <div class="fg"><label class="fl">炭水化物 (g)</label><input type="number" id="gCarb" class="fi" value="${g.carbs}"></div>
+      <button class="btn btn-p btn-bl" onclick="saveGoals()">目標を保存</button>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:14px">⭐ テンプレート</div>
+      ${t.map(x=>`
+        <div class="meal-item">
+          <div class="mh">
+            <div><span class="mcat ${catcls[x.category]}">${catLabel(x.category)}</span><div class="mn">${esc(x.name)}</div></div>
+            <div class="mact">
+              <button class="btn btn-s" onclick="quickAdd('${x.id}')">今日に追加</button>
+              <button class="btn btn-d" onclick="delTmpl('${x.id}')">削除</button>
+            </div>
           </div>
-          <div class="progress-bar"><div class="progress-fill p-cal" style="width:${p}%"></div></div>
-        </div>`;
-      }).join('')}
+          <div class="mnums"><span>🔥${Math.round(x.calories)}kcal</span><span>P:${(+x.protein).toFixed(1)}g</span><span>F:${(+x.fat).toFixed(1)}g</span><span>C:${(+x.carbs).toFixed(1)}g</span></div>
+        </div>`).join('')||'<div class="empty" style="padding:16px"><div>テンプレートがありません</div></div>'}
+      <div class="divider"></div>
+      <div class="fg"><label class="fl">食品名</label><input type="text" id="tName" class="fi" placeholder="例：ザバスプロテイン"></div>
+      <div class="fg"><label class="fl">食事区分</label>
+        <select id="tCat" class="fi">
+          <option value="breakfast">朝食</option><option value="lunch">昼食</option>
+          <option value="dinner">夕食</option><option value="snack">間食</option>
+        </select>
+      </div>
+      <div class="frow frow4">
+        <div class="fg"><label class="fl">カロリー</label><input type="number" id="tCal" class="fi" placeholder="110"></div>
+        <div class="fg"><label class="fl">たんぱく質</label><input type="number" id="tPro" class="fi" placeholder="20"></div>
+        <div class="fg"><label class="fl">脂質</label><input type="number" id="tFat" class="fi" placeholder="2"></div>
+        <div class="fg"><label class="fl">炭水化物</label><input type="number" id="tCarb" class="fi" placeholder="5"></div>
+      </div>
+      <button class="btn btn-p btn-bl" onclick="addTemplate()">テンプレートを保存</button>
     </div>`;
 }
 
-// =====================================================================
-// TEMPLATES
-// =====================================================================
-function renderTemplates() {
-  const tmpls = getTmpl();
-  if (!tmpls.length) {
-    document.getElementById('templateList').innerHTML = `<div class="empty"><div>テンプレートがありません</div></div>`;
-    return;
-  }
-  document.getElementById('templateList').innerHTML = tmpls.map(t => `
-    <div class="meal-item">
-      <div class="meal-head">
-        <div>
-          <span class="meal-cat cat-${t.category}">${catLabel(t.category)}</span>
-          <div class="meal-name">${esc(t.name)}</div>
-        </div>
-        <div class="meal-actions">
-          <button class="btn btn-success" onclick="addTmplToday('${t.id}')">今日に追加</button>
-          <button class="btn btn-danger" onclick="delTmpl('${t.id}')">削除</button>
-        </div>
-      </div>
-      <div class="meal-nums">
-        <span>🔥 ${Math.round(t.calories)} kcal</span>
-        <span>P: ${(+t.protein).toFixed(1)}g</span>
-        <span>F: ${(+t.fat).toFixed(1)}g</span>
-        <span>C: ${(+t.carbs).toFixed(1)}g</span>
-      </div>
-    </div>`).join('');
+// ════════════════════════════════════════════════
+// COLLAPSIBLE
+// ════════════════════════════════════════════════
+function toggleColl(collId, chevId, _ignored, renderFn) {
+  const el=document.getElementById(collId);
+  const hidden=el.classList.toggle('hidden');
+  document.getElementById(chevId).textContent=hidden?'▼':'▲';
+  if (!hidden) renderFn();
+}
+
+// ════════════════════════════════════════════════
+// DATE NAV
+// ════════════════════════════════════════════════
+function changeDate(delta) {
+  const d=new Date(curDate+'T00:00:00'); d.setDate(d.getDate()+delta);
+  curDate=d.toISOString().split('T')[0];
+  document.getElementById('currentDate').value=curDate;
+  renderPage();
+}
+function onDateChange() { curDate=document.getElementById('currentDate').value; renderPage(); }
+function goToToday() { curDate=todayStr(); document.getElementById('currentDate').value=curDate; renderPage(); }
+function goDate(d) { curDate=d; document.getElementById('currentDate').value=d; window.scrollTo({top:0,behavior:'smooth'}); renderPage(); }
+
+// ════════════════════════════════════════════════
+// FULL PAGE RENDER
+// ════════════════════════════════════════════════
+function renderPage() {
+  renderHeader();
+  updateWeightCard();
+  renderStats();
+  renderGauges();
+  renderMissions();
+  renderQuick();
+  renderMeals();
+  renderBadges();
+  renderStatus();
+  renderChart();
+}
+
+// ════════════════════════════════════════════════
+// PARTIAL RE-RENDER (after data change)
+// ════════════════════════════════════════════════
+function refresh() {
+  renderHeader();
+  updateWeightCard();
+  renderStats();
+  renderGauges();
+  renderMissions();
+  renderMeals();
+  renderBadges();
+  renderStatus();
+}
+
+// ════════════════════════════════════════════════
+// WEIGHT
+// ════════════════════════════════════════════════
+function saveWeight() {
+  const v=parseFloat(document.getElementById('weightInput').value);
+  const prevXP=computeXP();
+  const rec=getRec(curDate);
+  rec.weight=isNaN(v)?null:v;
+  saveRec(curDate,rec);
+  refresh();
+  runGameChecks(prevXP);
+}
+
+// ════════════════════════════════════════════════
+// MEAL CRUD
+// ════════════════════════════════════════════════
+function addMeal() {
+  const name=document.getElementById('mealName').value.trim();
+  if (!name){showToast('⚠️ 食品名を入力してください');return;}
+  const prevXP=computeXP();
+  const meal={
+    id:genId(),
+    category:document.getElementById('mealCategory').value,
+    name,
+    calories:parseFloat(document.getElementById('mealCalories').value)||0,
+    protein: parseFloat(document.getElementById('mealProtein').value) ||0,
+    fat:     parseFloat(document.getElementById('mealFat').value)     ||0,
+    carbs:   parseFloat(document.getElementById('mealCarbs').value)   ||0,
+  };
+  const rec=getRec(curDate); rec.meals=rec.meals||[]; rec.meals.push(meal);
+  saveRec(curDate,rec);
+  ['mealName','mealCalories','mealProtein','mealFat','mealCarbs'].forEach(id=>document.getElementById(id).value='');
+  floatXP(10); showToast('✅ 追加！ +10 XP');
+  refresh();
+  runGameChecks(prevXP);
+}
+
+function quickAdd(id) {
+  const t=getTmpl().find(x=>x.id===id); if(!t)return;
+  const prevXP=computeXP();
+  const rec=getRec(curDate); rec.meals=rec.meals||[];
+  rec.meals.push({id:genId(),category:t.category,name:t.name,calories:t.calories,protein:t.protein,fat:t.fat,carbs:t.carbs});
+  saveRec(curDate,rec);
+  floatXP(10); showToast(`✅ 「${t.name}」追加！ +10 XP`);
+  refresh();
+  runGameChecks(prevXP);
+}
+
+function delMeal(id) {
+  if (!confirm('この食事を削除しますか？'))return;
+  const rec=getRec(curDate); rec.meals=(rec.meals||[]).filter(m=>m.id!==id);
+  saveRec(curDate,rec); showToast('🗑️ 削除しました');
+  refresh();
+}
+
+// ════════════════════════════════════════════════
+// EDIT MODAL
+// ════════════════════════════════════════════════
+function openEdit(id) {
+  const m=(getRec(curDate).meals||[]).find(x=>x.id===id); if(!m)return;
+  ['editId','editName'].forEach(k=>{document.getElementById(k).value=k==='editId'?id:m.name});
+  document.getElementById('editCategory').value=m.category;
+  document.getElementById('editCalories').value=m.calories;
+  document.getElementById('editProtein').value=m.protein;
+  document.getElementById('editFat').value=m.fat;
+  document.getElementById('editCarbs').value=m.carbs;
+  document.getElementById('editModal').classList.add('show');
+}
+function saveEdit() {
+  const id=document.getElementById('editId').value;
+  const rec=getRec(curDate); const idx=(rec.meals||[]).findIndex(m=>m.id===id); if(idx<0)return;
+  const prevXP=computeXP();
+  rec.meals[idx]={...rec.meals[idx],
+    category:document.getElementById('editCategory').value,
+    name:document.getElementById('editName').value.trim(),
+    calories:parseFloat(document.getElementById('editCalories').value)||0,
+    protein: parseFloat(document.getElementById('editProtein').value) ||0,
+    fat:     parseFloat(document.getElementById('editFat').value)     ||0,
+    carbs:   parseFloat(document.getElementById('editCarbs').value)   ||0,
+  };
+  saveRec(curDate,rec); closeModal('editModal'); showToast('✅ 更新しました！');
+  refresh(); runGameChecks(prevXP);
+}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+document.getElementById('editModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal('editModal')});
+document.getElementById('rewardModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeRew()});
+
+// ════════════════════════════════════════════════
+// GOALS & TEMPLATES
+// ════════════════════════════════════════════════
+function saveGoals() {
+  const g={
+    calories:parseFloat(document.getElementById('gCal').value)||2500,
+    protein: parseFloat(document.getElementById('gPro').value)||160,
+    fat:     parseFloat(document.getElementById('gFat').value)||70,
+    carbs:   parseFloat(document.getElementById('gCarb').value)||300,
+  };
+  localStorage.setItem(K.GOALS,JSON.stringify(g));
+  showToast('✅ 目標を保存しました！'); renderPage();
 }
 function addTemplate() {
-  const name = document.getElementById('tmplName').value.trim();
-  if (!name) { showToast('⚠️ 食品名を入力してください'); return; }
-  const tmpls = getTmpl();
-  tmpls.push({
-    id: genId(), name,
-    category: document.getElementById('tmplCategory').value,
-    calories: parseFloat(document.getElementById('tmplCalories').value) || 0,
-    protein:  parseFloat(document.getElementById('tmplProtein').value)  || 0,
-    fat:      parseFloat(document.getElementById('tmplFat').value)      || 0,
-    carbs:    parseFloat(document.getElementById('tmplCarbs').value)    || 0,
+  const name=document.getElementById('tName').value.trim();
+  if (!name){showToast('⚠️ 食品名を入力してください');return;}
+  const t=getTmpl();
+  t.push({id:genId(),name,category:document.getElementById('tCat').value,
+    calories:parseFloat(document.getElementById('tCal').value)||0,
+    protein: parseFloat(document.getElementById('tPro').value)||0,
+    fat:     parseFloat(document.getElementById('tFat').value)||0,
+    carbs:   parseFloat(document.getElementById('tCarb').value)||0,
   });
-  saveTmpl(tmpls);
-  ['tmplName','tmplCalories','tmplProtein','tmplFat','tmplCarbs'].forEach(id => document.getElementById(id).value = '');
-  showToast('✅ テンプレートを保存しました！');
-  renderTemplates();
+  saveTmpl(t);
+  showToast('✅ テンプレートを保存！');
+  renderSettings(); renderQuick();
 }
 function delTmpl(id) {
-  if (!confirm('このテンプレートを削除しますか？')) return;
-  saveTmpl(getTmpl().filter(t => t.id !== id));
-  showToast('🗑️ 削除しました');
-  renderTemplates();
-}
-function addTmplToday(id) { quickAdd(id); switchTab('today'); }
-
-// =====================================================================
-// GOALS
-// =====================================================================
-function renderGoals() {
-  const g = getGoals();
-  document.getElementById('goalCalories').value = g.calories;
-  document.getElementById('goalProtein').value  = g.protein;
-  document.getElementById('goalFat').value       = g.fat;
-  document.getElementById('goalCarbs').value     = g.carbs;
-}
-function saveGoals() {
-  const g = {
-    calories: parseFloat(document.getElementById('goalCalories').value) || 2500,
-    protein:  parseFloat(document.getElementById('goalProtein').value)  || 160,
-    fat:      parseFloat(document.getElementById('goalFat').value)      || 70,
-    carbs:    parseFloat(document.getElementById('goalCarbs').value)    || 300,
-  };
-  localStorage.setItem(K.GOALS, JSON.stringify(g));
-  showToast('✅ 目標を保存しました！');
-  renderGameBar();
-  renderMissions();
+  if (!confirm('削除しますか？'))return;
+  saveTmpl(getTmpl().filter(t=>t.id!==id));
+  showToast('🗑️ 削除しました'); renderSettings(); renderQuick();
 }
 
-// =====================================================================
-// DUMMY DATA
-// =====================================================================
-function insertDummy() {
-  if (Object.keys(getRecs()).length > 0) return;
-  const today = todayStr();
-  const recs = {};
-  recs[today] = {
-    weight: 72.5,
-    meals: [
-      { id:genId(), category:'breakfast', name:'オートミール 80g',    calories:280, protein:10,   fat:5,    carbs:48  },
-      { id:genId(), category:'breakfast', name:'卵 2個',               calories:152, protein:12.4, fat:10,   carbs:0.4 },
-      { id:genId(), category:'breakfast', name:'バナナ 1本',            calories:86,  protein:1,    fat:0.2,  carbs:22  },
-      { id:genId(), category:'lunch',     name:'鶏むね肉 200g',         calories:216, protein:46,   fat:3,    carbs:0   },
-      { id:genId(), category:'lunch',     name:'ご飯 300g',             calories:504, protein:7.5,  fat:0.75, carbs:111 },
-      { id:genId(), category:'snack',     name:'ホエイプロテイン 1杯',  calories:110, protein:20,   fat:1.5,  carbs:6   },
-    ]
-  };
-  const baseWeights = [73.2, 73.0, 72.8, 72.9, 72.7, 72.6, 72.8];
-  for (let i = 1; i <= 7; i++) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    recs[ds] = {
-      weight: baseWeights[i-1],
-      meals: [
-        { id:genId(), category:'breakfast', name:'トースト＆卵',      calories:310+Math.floor(Math.random()*60),  protein:14, fat:8,  carbs:42 },
-        { id:genId(), category:'lunch',     name:`サンプル昼食 ${i}`, calories:620+Math.floor(Math.random()*150), protein:28, fat:14, carbs:78 },
-        { id:genId(), category:'dinner',    name:`サンプル夕食 ${i}`, calories:580+Math.floor(Math.random()*120), protein:32, fat:12, carbs:68 },
-        { id:genId(), category:'snack',     name:'プロテイン',         calories:110, protein:20, fat:1.5, carbs:6  },
-      ]
-    };
+// ════════════════════════════════════════════════
+// REWARD SYSTEM
+// ════════════════════════════════════════════════
+function runGameChecks(prevXP) {
+  const newXP=computeXP();
+  const prevLv=xpInfo(prevXP).level, newLv=xpInfo(newXP).level;
+  const newBadges=checkBadges();
+  rewQ=[];
+  newBadges.forEach(id=>{
+    const def=BADGE_DEFS.find(b=>b.id===id);
+    if(def) rewQ.push(()=>showRew('badge',def));
+  });
+  if (newLv>prevLv) rewQ.push(()=>showRew('lv',{level:newLv}));
+  if (rewQ.length){const fn=rewQ.shift();fn();}
+}
+
+function showRew(type,data) {
+  let html='';
+  if (type==='badge') {
+    html=`<span class="rew-icon">${data.e}</span>
+      <div class="rew-title" style="color:var(--amber)">バッジ獲得！</div>
+      <div class="rew-sub"><b>「${data.n}」</b>を獲得した！<br>${data.c}</div>
+      <button class="rew-btn" onclick="closeRew()">いえーい！🎉</button>`;
+  } else {
+    const msgs={2:'記録を続けよう！',3:'いい調子！',5:'継続の達人！',10:'伝説のランナー！'};
+    const m=msgs[data.level]||`レベル${data.level}の実力者！`;
+    html=`<span class="rew-icon">🎉</span>
+      <div class="rew-title" style="color:var(--cyan)">LEVEL UP!</div>
+      <div class="rew-sub">Lv.${data.level} に到達！<br>${m}</div>
+      <button class="rew-btn" onclick="closeRew()">やった！</button>`;
   }
-  localStorage.setItem(K.REC, JSON.stringify(recs));
-  // Award initial badges for dummy data
-  checkAndAwardBadges();
+  document.getElementById('rewBody').innerHTML=html;
+  document.getElementById('rewardModal').classList.add('show');
+}
+function closeRew() {
+  closeModal('rewardModal');
+  if (rewQ.length){const fn=rewQ.shift();fn();}
 }
 
-// =====================================================================
+// ════════════════════════════════════════════════
+// DUMMY DATA
+// ════════════════════════════════════════════════
+function insertDummy() {
+  if (Object.keys(getRecs()).length>0) return;
+  const today=todayStr(), recs={};
+  recs[today]={weight:72.5,meals:[
+    {id:genId(),category:'breakfast',name:'オートミール 80g',calories:280,protein:10,fat:5,carbs:48},
+    {id:genId(),category:'breakfast',name:'卵 2個',calories:152,protein:12.4,fat:10,carbs:0.4},
+    {id:genId(),category:'breakfast',name:'バナナ 1本',calories:86,protein:1,fat:0.2,carbs:22},
+    {id:genId(),category:'lunch',name:'鶏むね肉 200g',calories:216,protein:46,fat:3,carbs:0},
+    {id:genId(),category:'lunch',name:'ご飯 300g',calories:504,protein:7.5,fat:0.75,carbs:111},
+    {id:genId(),category:'snack',name:'ホエイプロテイン',calories:110,protein:20,fat:1.5,carbs:6},
+  ]};
+  const bw=[73.2,73.0,72.8,72.9,72.7,72.6,72.8];
+  for(let i=1;i<=7;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    recs[ds]={weight:bw[i-1],meals:[
+      {id:genId(),category:'breakfast',name:'トースト＆スクランブルエッグ',calories:320+Math.floor(Math.random()*50),protein:15,fat:9,carbs:44},
+      {id:genId(),category:'lunch',name:`サンプル昼食 ${i}`,calories:640+Math.floor(Math.random()*120),protein:30,fat:15,carbs:80},
+      {id:genId(),category:'dinner',name:`サンプル夕食 ${i}`,calories:600+Math.floor(Math.random()*100),protein:34,fat:13,carbs:70},
+      {id:genId(),category:'snack',name:'プロテインシェイク',calories:110,protein:20,fat:1.5,carbs:6},
+    ]};
+  }
+  localStorage.setItem(K.REC,JSON.stringify(recs));
+  checkBadges();
+}
+
+// ════════════════════════════════════════════════
 // INIT
-// =====================================================================
+// ════════════════════════════════════════════════
 function init() {
   insertDummy();
-  document.getElementById('currentDate').value = curDate;
-  renderGameBar();
-  renderToday();
+  document.getElementById('currentDate').value=curDate;
+  renderPage();
 }
-
 init();
 </script>
 </body>
