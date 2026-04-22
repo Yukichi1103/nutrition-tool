@@ -9,8 +9,9 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#f5f7fa;color:#333;font-size:16px;min-height:100vh}
 
+/* ===== HEADER ===== */
 .header{background:#fff;border-bottom:2px solid #e8eaed;padding:14px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .header-title{font-size:20px;font-weight:800;color:#2c3e50;letter-spacing:-.5px}
 .date-nav{display:flex;align-items:center;gap:8px}
 .date-nav-btn{background:#f0f2f5;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:16px;line-height:1;color:#555;transition:background .15s}
@@ -18,16 +19,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 #currentDate{padding:6px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;color:#333;background:#fff;cursor:pointer}
 .btn-today{padding:6px 12px;background:#eef4ff;border:1.5px solid #4a90d9;border-radius:6px;color:#4a90d9;font-size:13px;font-weight:600;cursor:pointer}
 
+/* ===== GAME BAR ===== */
+.game-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0 10px;flex-wrap:wrap}
+.game-bar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.lv-badge{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.xp-track{flex:1;min-width:60px;max-width:180px}
+.xp-bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#667eea,#a78bfa);border-radius:4px;transition:width .5s ease}
+.xp-label{font-size:10px;color:#aaa;margin-top:2px;font-weight:600}
+.streak-chip{background:#fff3e0;border:1.5px solid #f39c12;color:#e67e22;font-size:12px;font-weight:700;padding:4px 10px;border-radius:16px;white-space:nowrap;flex-shrink:0}
+.streak-chip.cold{background:#f5f5f5;border-color:#ddd;color:#aaa}
+
+/* ===== TABS ===== */
 .nav-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fff;scrollbar-width:none}
 .nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{padding:12px 14px;border:none;background:none;font-size:13px;color:#888;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;font-weight:500;transition:all .2s;flex-shrink:0}
+.nav-tab{padding:11px 13px;border:none;background:none;font-size:13px;color:#888;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;font-weight:500;transition:all .2s;flex-shrink:0}
 .nav-tab.active{color:#4a90d9;border-bottom-color:#4a90d9;font-weight:700}
 
+/* ===== LAYOUT ===== */
 .content{max-width:780px;margin:0 auto;padding:16px}
-
 .card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .card-title{font-size:15px;font-weight:700;color:#2c3e50;margin-bottom:16px;display:flex;align-items:center;gap:6px}
 
+/* ===== STATS ===== */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 @media(min-width:500px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
 .stat-card{background:#f8f9fc;border-radius:12px;padding:14px;text-align:center;border:1px solid #eff0f3}
@@ -38,6 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .stat-pct{font-size:12px;font-weight:700;margin-top:2px}
 .pct-ok{color:#27ae60}.pct-warn{color:#f39c12}.pct-over{color:#e74c3c}
 
+/* ===== PROGRESS ===== */
 .progress-wrap{margin-bottom:13px}
 .progress-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:#555}
 .progress-head b{color:#2c3e50}
@@ -48,6 +63,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .p-fat{background:linear-gradient(90deg,#f7b731,#fcd34d)}
 .p-carb{background:linear-gradient(90deg,#a29bfe,#c4b0ff)}
 
+/* ===== MISSIONS ===== */
+.mission-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.mission-item:last-child{border-bottom:none}
+.mission-check{width:26px;height:26px;border-radius:50%;border:2.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .3s}
+.mission-check.done{background:#27ae60;border-color:#27ae60;color:#fff}
+.mission-info{flex:1}
+.mission-label{font-size:14px;font-weight:600;color:#333}
+.mission-label.done{color:#aaa;text-decoration:line-through}
+.mission-xp{font-size:12px;color:#9b59b6;font-weight:700;margin-top:2px}
+.mission-xp.done{color:#27ae60}
+
+/* ===== BADGES ===== */
+.badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:500px){.badge-grid{grid-template-columns:repeat(3,1fr)}}
+.badge-card{border-radius:12px;padding:16px;text-align:center;border:2px solid}
+.badge-card.earned{background:#fffbf0;border-color:#f39c12}
+.badge-card.locked{background:#f8f9fa;border-color:#e8eaed;opacity:.6}
+.badge-emoji{font-size:32px;margin-bottom:8px}
+.badge-name{font-size:13px;font-weight:700;color:#2c3e50;margin-bottom:4px}
+.badge-desc{font-size:11px;color:#999;line-height:1.4}
+.badge-earned-date{font-size:10px;color:#f39c12;font-weight:700;margin-top:6px}
+.badge-locked-label{font-size:10px;color:#ccc;font-weight:700;margin-top:6px}
+
+/* ===== GAME TAB STATS ===== */
+.game-stat-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.game-stat-row:last-child{border-bottom:none}
+.game-stat-label{font-size:14px;color:#666}
+.game-stat-val{font-size:18px;font-weight:800;color:#2c3e50}
+
+/* ===== FORMS ===== */
 .form-group{margin-bottom:12px}
 .form-label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:5px;letter-spacing:.3px}
 .form-input{width:100%;padding:10px 13px;border:1.5px solid #e0e4ea;border-radius:9px;font-size:15px;color:#333;background:#fff;transition:border-color .2s;-webkit-appearance:none;appearance:none}
@@ -56,6 +101,7 @@ select.form-input{cursor:pointer}
 .form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 @media(min-width:500px){.form-row-4{grid-template-columns:repeat(4,1fr)}}
 
+/* ===== BUTTONS ===== */
 .btn{padding:10px 18px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;justify-content:center}
 .btn-block{width:100%}
 .btn-primary{background:#4a90d9;color:#fff}
@@ -67,10 +113,12 @@ select.form-input{cursor:pointer}
 .btn-sec{background:#f0f2f5;color:#555;padding:5px 11px;font-size:12px}
 .btn-sec:hover{background:#e4e6ea}
 
+/* ===== QUICK BUTTONS ===== */
 .quick-wrap{display:flex;flex-wrap:wrap;gap:8px}
 .quick-btn{padding:8px 14px;border:1.5px solid #4a90d9;border-radius:20px;background:#f0f6ff;color:#4a90d9;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .quick-btn:hover{background:#4a90d9;color:#fff}
 
+/* ===== MEAL ITEMS ===== */
 .meal-item{border:1.5px solid #eff1f5;border-radius:11px;padding:13px;margin-bottom:9px;background:#fafbfd;transition:border-color .2s}
 .meal-item:hover{border-color:#c9d6e8}
 .meal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
@@ -84,37 +132,45 @@ select.form-input{cursor:pointer}
 .meal-nums{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#777}
 .meal-nums span{white-space:nowrap}
 
+/* ===== WEIGHT ===== */
 .weight-big{display:flex;align-items:baseline;gap:6px}
 #weightInput{width:130px;font-size:28px;font-weight:800;text-align:center;padding:8px 12px}
 .weight-unit{font-size:18px;color:#aaa;font-weight:600}
 
+/* ===== MISC ===== */
 .empty{text-align:center;padding:36px 20px;color:#bbb}
 .empty-icon{font-size:44px;margin-bottom:10px}
-
 .past-item{border:1.5px solid #e8eaed;border-radius:11px;padding:14px;margin-bottom:9px;cursor:pointer;transition:all .2s}
 .past-item:hover{background:#f5f7fa;border-color:#4a90d9}
 .past-date{font-weight:700;color:#2c3e50;margin-bottom:4px;font-size:15px}
 .past-summary{font-size:13px;color:#888;line-height:1.6}
-
 .chart-wrap{position:relative;height:240px}
-
 .weekly-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
 .weekly-row:last-child{border-bottom:none}
 .weekly-label{color:#666}
 .weekly-val{font-weight:700;color:#2c3e50}
+.tag-new{display:inline-block;background:#ff6b6b;color:#fff;font-size:10px;padding:2px 6px;border-radius:6px;margin-left:6px;font-weight:700;vertical-align:middle}
+.section-note{font-size:12px;color:#aaa;margin-bottom:12px;line-height:1.5}
 
+/* ===== MODALS ===== */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .modal-title{font-size:18px;font-weight:800;margin-bottom:20px;color:#2c3e50}
 .modal-actions{display:flex;gap:10px;margin-top:20px}
 
+/* Level-up / Badge modals */
+.reward-modal{text-align:center;padding:32px 24px}
+.reward-icon{font-size:64px;margin-bottom:16px;animation:pop .4s ease}
+.reward-title{font-size:22px;font-weight:800;color:#2c3e50;margin-bottom:8px}
+.reward-sub{font-size:15px;color:#666;margin-bottom:24px;line-height:1.5}
+.reward-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+
+/* ===== TOAST ===== */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2c3e50;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
-
-.tag-new{display:inline-block;background:#ff6b6b;color:#fff;font-size:10px;padding:2px 6px;border-radius:6px;margin-left:6px;font-weight:700;vertical-align:middle}
-
-.section-note{font-size:12px;color:#aaa;margin-bottom:12px;line-height:1.5}
 
 .hidden{display:none!important}
 
@@ -122,6 +178,7 @@ select.form-input{cursor:pointer}
   .content{padding:12px}
   .card{padding:15px}
   .header-top{flex-wrap:wrap;gap:8px}
+  .xp-track{max-width:100px}
 }
 </style>
 </head>
@@ -137,6 +194,10 @@ select.form-input{cursor:pointer}
       <button class="btn-today" onclick="goToToday()">今日</button>
     </div>
   </div>
+
+  <!-- XP / Streak bar -->
+  <div class="game-bar" id="gameBar"></div>
+
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('today')">📋 今日</button>
     <button class="nav-tab" onclick="switchTab('past')">📅 過去</button>
@@ -144,10 +205,11 @@ select.form-input{cursor:pointer}
     <button class="nav-tab" onclick="switchTab('weekly')">📆 週間</button>
     <button class="nav-tab" onclick="switchTab('templates')">⭐ テンプレ</button>
     <button class="nav-tab" onclick="switchTab('goals')">🎯 目標</button>
+    <button class="nav-tab" onclick="switchTab('game')">🎮 ゲーム</button>
   </div>
 </div>
 
-<!-- ===== TODAY TAB ===== -->
+<!-- ===== TODAY ===== -->
 <div id="tab-today" class="content">
 
   <div class="card">
@@ -156,6 +218,12 @@ select.form-input{cursor:pointer}
       <input type="number" id="weightInput" class="form-input" step="0.1" min="0" max="300" placeholder="70.0" oninput="saveWeight()">
       <span class="weight-unit">kg</span>
     </div>
+  </div>
+
+  <!-- Daily Missions -->
+  <div class="card">
+    <div class="card-title">📝 デイリーミッション</div>
+    <div id="missionsSection"></div>
   </div>
 
   <div class="card">
@@ -216,7 +284,7 @@ select.form-input{cursor:pointer}
 
 </div>
 
-<!-- ===== PAST TAB ===== -->
+<!-- ===== PAST ===== -->
 <div id="tab-past" class="content hidden">
   <div class="card">
     <div class="card-title">📅 過去の記録（新しい順）</div>
@@ -224,7 +292,7 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- ===== WEIGHT TAB ===== -->
+<!-- ===== WEIGHT ===== -->
 <div id="tab-weight" class="content hidden">
   <div class="card">
     <div class="card-title">📈 体重推移（過去30日）</div>
@@ -236,7 +304,7 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- ===== WEEKLY TAB ===== -->
+<!-- ===== WEEKLY ===== -->
 <div id="tab-weekly" class="content hidden">
   <div class="card">
     <div class="card-title">📆 週間サマリー（過去7日）</div>
@@ -244,11 +312,11 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- ===== TEMPLATES TAB ===== -->
+<!-- ===== TEMPLATES ===== -->
 <div id="tab-templates" class="content hidden">
   <div class="card">
     <div class="card-title">⭐ テンプレート食品</div>
-    <p class="section-note">よく食べる食品を登録すると「クイック追加」ボタンに表示されます。ワンクリックで今日の記録に追加できます。</p>
+    <p class="section-note">よく食べる食品を登録すると「クイック追加」ボタンに表示されます。</p>
     <div id="templateList"></div>
   </div>
   <div class="card">
@@ -288,7 +356,7 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
-<!-- ===== GOALS TAB ===== -->
+<!-- ===== GOALS ===== -->
 <div id="tab-goals" class="content hidden">
   <div class="card">
     <div class="card-title">🎯 1日の目標値を設定</div>
@@ -311,6 +379,32 @@ select.form-input{cursor:pointer}
     </div>
     <button class="btn btn-primary btn-block" onclick="saveGoals()">目標を保存する</button>
   </div>
+</div>
+
+<!-- ===== GAME TAB ===== -->
+<div id="tab-game" class="content hidden">
+
+  <!-- Level card -->
+  <div class="card">
+    <div class="card-title">🏆 あなたのステータス</div>
+    <div id="gameStatus"></div>
+  </div>
+
+  <!-- All badges -->
+  <div class="card">
+    <div class="card-title">🎖️ バッジコレクション</div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>
+
+  <!-- XP history / how to earn -->
+  <div class="card">
+    <div class="card-title">💡 XPの稼ぎ方</div>
+    <div class="weekly-row"><span class="weekly-label">食事を1回記録</span><span class="weekly-val" style="color:#9b59b6">+10 XP</span></div>
+    <div class="weekly-row"><span class="weekly-label">カロリー目標達成（1日）</span><span class="weekly-val" style="color:#9b59b6">+50 XP</span></div>
+    <div class="weekly-row"><span class="weekly-label">たんぱく質目標達成（1日）</span><span class="weekly-val" style="color:#9b59b6">+100 XP</span></div>
+    <div class="weekly-row"><span class="weekly-label">レベルアップに必要なXP</span><span class="weekly-val">100 XP / レベル</span></div>
+  </div>
+
 </div>
 
 <!-- ===== EDIT MODAL ===== -->
@@ -358,13 +452,25 @@ select.form-input{cursor:pointer}
   </div>
 </div>
 
+<!-- ===== REWARD MODAL (level-up / badge) ===== -->
+<div class="modal-overlay" id="rewardModal">
+  <div class="modal">
+    <div class="reward-modal" id="rewardContent"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// =====================
+// =====================================================================
 // STORAGE
-// =====================
-const K = { REC: 'nt_records', GOALS: 'nt_goals', TMPL: 'nt_templates' };
+// =====================================================================
+const K = {
+  REC:   'nt_records',
+  GOALS: 'nt_goals',
+  TMPL:  'nt_templates',
+  GAME:  'nt_game',
+};
 
 function getRecs() { return JSON.parse(localStorage.getItem(K.REC) || '{}'); }
 function getRec(d) { return getRecs()[d] || { weight: null, meals: [] }; }
@@ -376,6 +482,12 @@ function getGoals() {
   return Object.assign({ calories:2500, protein:160, fat:70, carbs:300 },
     JSON.parse(localStorage.getItem(K.GOALS) || '{}'));
 }
+function getGame() {
+  return Object.assign({ badges: [], notifiedMissions: {} },
+    JSON.parse(localStorage.getItem(K.GAME) || '{}'));
+}
+function saveGame(g) { localStorage.setItem(K.GAME, JSON.stringify(g)); }
+
 function getTmpl() {
   const s = localStorage.getItem(K.TMPL);
   if (s) return JSON.parse(s);
@@ -391,12 +503,273 @@ function getTmpl() {
 }
 function saveTmpl(t) { localStorage.setItem(K.TMPL, JSON.stringify(t)); }
 
-// =====================
+// =====================================================================
+// GAMIFICATION — DATA
+// =====================================================================
+
+// Badge definitions
+const BADGE_DEFS = [
+  { id:'first_record', emoji:'🌟', name:'初記録',       desc:'初めて食事を記録した', condition:'最初の1食を記録' },
+  { id:'streak_3',     emoji:'🔥', name:'3日継続',      desc:'3日連続で記録した',    condition:'3日連続記録' },
+  { id:'streak_7',     emoji:'💎', name:'1週間の戦士',  desc:'7日連続で記録した',    condition:'7日連続記録' },
+  { id:'protein_5',    emoji:'💪', name:'プロテイン番長',desc:'タンパク質目標を5日達成',condition:'タンパク質目標 5日達成' },
+  { id:'cal_5',        emoji:'🔋', name:'カロリー管理人',desc:'カロリー目標を5日達成', condition:'カロリー目標 5日達成' },
+  { id:'lv10',         emoji:'🚀', name:'Lv.10到達',    desc:'レベル10に到達した',   condition:'Lv.10 に到達' },
+];
+
+// Compute total XP from all records
+function computeXP() {
+  const recs = getRecs();
+  const goals = getGoals();
+  let xp = 0;
+  Object.values(recs).forEach(rec => {
+    const meals = rec.meals || [];
+    if (!meals.length) return;
+    xp += meals.length * 10;
+    const tot = totals(meals);
+    if (tot.calories >= goals.calories) xp += 50;
+    if (tot.protein >= goals.protein)   xp += 100;
+  });
+  return xp;
+}
+
+function xpToLevel(xp) {
+  const level    = Math.floor(xp / 100) + 1;
+  const inLevel  = xp % 100;
+  return { level, inLevel, nextXP: 100 };
+}
+
+function computeStreak() {
+  const recs = getRecs();
+  let streak = 0;
+  const d = new Date(todayStr() + 'T00:00:00');
+  while (true) {
+    const ds = d.toISOString().split('T')[0];
+    const r = recs[ds];
+    if (r && (r.meals || []).length > 0) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+// Count days where a condition was met
+function countDaysMet(condFn) {
+  const recs = getRecs();
+  const goals = getGoals();
+  let count = 0;
+  Object.values(recs).forEach(rec => {
+    const meals = rec.meals || [];
+    if (!meals.length) return;
+    if (condFn(totals(meals), goals)) count++;
+  });
+  return count;
+}
+
+// Check & award badges. Returns array of newly earned badge ids.
+function checkAndAwardBadges() {
+  const game = getGame();
+  const earned = new Set(game.badges.map(b => b.id));
+  const newly = [];
+
+  const recs = getRecs();
+  const allMeals = Object.values(recs).flatMap(r => r.meals || []);
+  const streak = computeStreak();
+  const xp = computeXP();
+  const { level } = xpToLevel(xp);
+  const goals = getGoals();
+  const proteinDays = countDaysMet((t,g) => t.protein >= g.protein);
+  const calDays     = countDaysMet((t,g) => t.calories >= g.calories);
+
+  const conditions = {
+    first_record: allMeals.length >= 1,
+    streak_3:     streak >= 3,
+    streak_7:     streak >= 7,
+    protein_5:    proteinDays >= 5,
+    cal_5:        calDays >= 5,
+    lv10:         level >= 10,
+  };
+
+  BADGE_DEFS.forEach(def => {
+    if (!earned.has(def.id) && conditions[def.id]) {
+      game.badges.push({ id: def.id, earnedAt: todayStr() });
+      newly.push(def.id);
+    }
+  });
+
+  if (newly.length) saveGame(game);
+  return newly;
+}
+
+// =====================================================================
+// GAMIFICATION — UI
+// =====================================================================
+
+function renderGameBar() {
+  const xp = computeXP();
+  const { level, inLevel, nextXP } = xpToLevel(xp);
+  const streak = computeStreak();
+  const pct = Math.round((inLevel / nextXP) * 100);
+
+  document.getElementById('gameBar').innerHTML = `
+    <div class="game-bar-left">
+      <span class="lv-badge">Lv.${level}</span>
+      <div class="xp-track">
+        <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
+        <div class="xp-label">${inLevel} / ${nextXP} XP</div>
+      </div>
+    </div>
+    <span class="streak-chip${streak === 0 ? ' cold' : ''}">
+      ${streak > 0 ? '🔥' : '❄️'} ${streak}日連続
+    </span>`;
+}
+
+function renderMissions() {
+  const rec = getRec(curDate);
+  const goals = getGoals();
+  const meals = rec.meals || [];
+  const tot = totals(meals);
+
+  const missions = [
+    { id:'m_meals3',   label:'食事を3回記録する',      done: meals.length >= 3,                         xp: 30,  icon:'🍽️' },
+    { id:'m_protein',  label:'タンパク質目標を達成する', done: meals.length>0 && tot.protein>=goals.protein, xp: 100, icon:'💪' },
+    { id:'m_calories', label:'カロリー目標を達成する',   done: meals.length>0 && tot.calories>=goals.calories, xp: 50,  icon:'🔥' },
+  ];
+
+  document.getElementById('missionsSection').innerHTML = missions.map(m => `
+    <div class="mission-item">
+      <div class="mission-check${m.done ? ' done' : ''}">${m.done ? '✓' : ''}</div>
+      <div class="mission-info">
+        <div class="mission-label${m.done ? ' done' : ''}">${m.icon} ${m.label}</div>
+        <div class="mission-xp${m.done ? ' done' : ''}">+${m.xp} XP${m.done ? '　達成！' : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderGameTab() {
+  const xp = computeXP();
+  const { level, inLevel, nextXP } = xpToLevel(xp);
+  const streak = computeStreak();
+  const pct = Math.round((inLevel / nextXP) * 100);
+  const game = getGame();
+  const earnedIds = new Set(game.badges.map(b => b.id));
+  const proteinDays = countDaysMet((t,g) => t.protein >= g.protein);
+  const calDays     = countDaysMet((t,g) => t.calories >= g.calories);
+  const recs = getRecs();
+  const totalMeals  = Object.values(recs).reduce((s,r) => s+(r.meals||[]).length, 0);
+
+  document.getElementById('gameStatus').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:36px;font-weight:900;width:72px;height:72px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${level}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:800;color:#2c3e50;margin-bottom:4px">レベル ${level}</div>
+        <div class="xp-bar" style="height:14px;margin-bottom:4px">
+          <div class="xp-fill" style="width:${pct}%"></div>
+        </div>
+        <div style="font-size:12px;color:#aaa">${inLevel} / ${nextXP} XP（次のレベルまで ${nextXP - inLevel} XP）</div>
+      </div>
+    </div>
+    <div class="game-stat-row"><span class="game-stat-label">🔥 連続記録</span><span class="game-stat-val">${streak}日</span></div>
+    <div class="game-stat-row"><span class="game-stat-label">📊 累計XP</span><span class="game-stat-val">${xp} XP</span></div>
+    <div class="game-stat-row"><span class="game-stat-label">🍽️ 記録した食事数</span><span class="game-stat-val">${totalMeals}回</span></div>
+    <div class="game-stat-row"><span class="game-stat-label">💪 タンパク質目標達成</span><span class="game-stat-val">${proteinDays}日</span></div>
+    <div class="game-stat-row"><span class="game-stat-label">🔋 カロリー目標達成</span><span class="game-stat-val">${calDays}日</span></div>
+    <div class="game-stat-row"><span class="game-stat-label">🎖️ 獲得バッジ</span><span class="game-stat-val">${game.badges.length} / ${BADGE_DEFS.length}</span></div>`;
+
+  document.getElementById('badgeGrid').innerHTML = BADGE_DEFS.map(def => {
+    const b = game.badges.find(x => x.id === def.id);
+    return b
+      ? `<div class="badge-card earned">
+           <div class="badge-emoji">${def.emoji}</div>
+           <div class="badge-name">${def.name}</div>
+           <div class="badge-desc">${def.desc}</div>
+           <div class="badge-earned-date">🏅 ${b.earnedAt} 獲得</div>
+         </div>`
+      : `<div class="badge-card locked">
+           <div class="badge-emoji" style="filter:grayscale(1)">🔒</div>
+           <div class="badge-name">${def.name}</div>
+           <div class="badge-desc">${def.desc}</div>
+           <div class="badge-locked-label">条件：${def.condition}</div>
+         </div>`;
+  }).join('');
+}
+
+// Show level-up popup
+function showLevelUp(level) {
+  const msgs = ['', '素晴らしいスタート！', 'どんどん記録しよう！', '習慣になってきた！',
+    'いい調子！', '継続は力なり！', 'プロ級の記録力！', '止まらないぞ！',
+    '本物の戦士！', '上級者の域に！', 'レジェンド達成！'];
+  const msg = msgs[level] || `レベル${level}の実力者！`;
+  document.getElementById('rewardContent').innerHTML = `
+    <div class="reward-icon">🎉</div>
+    <div class="reward-title">レベルアップ！ Lv.${level}</div>
+    <div class="reward-sub">${msg}<br>このまま続けよう！</div>
+    <button class="reward-btn" onclick="closeReward()">やった！</button>`;
+  document.getElementById('rewardModal').classList.add('show');
+}
+
+// Show badge popup
+function showBadgePopup(badgeId) {
+  const def = BADGE_DEFS.find(b => b.id === badgeId);
+  if (!def) return;
+  document.getElementById('rewardContent').innerHTML = `
+    <div class="reward-icon">${def.emoji}</div>
+    <div class="reward-title">バッジ獲得！</div>
+    <div class="reward-sub"><b>「${def.name}」</b>を手に入れた！<br>${def.desc}</div>
+    <button class="reward-btn" onclick="closeReward()">いえーい！</button>`;
+  document.getElementById('rewardModal').classList.add('show');
+}
+
+function closeReward() {
+  document.getElementById('rewardModal').classList.remove('show');
+  // If there are more queued rewards, show next
+  if (rewardQueue.length) {
+    const next = rewardQueue.shift();
+    next();
+  }
+}
+
+let rewardQueue = [];
+
+// Called after any meal mutation to run all gamification checks
+function runGameChecks(prevXP) {
+  const newXP = computeXP();
+  const prevLv = xpToLevel(prevXP).level;
+  const newLv  = xpToLevel(newXP).level;
+
+  renderGameBar();
+  renderMissions();
+
+  // Queue notifications so they don't overlap
+  rewardQueue = [];
+
+  // Badge check first
+  const newBadges = checkAndAwardBadges();
+  newBadges.forEach(id => rewardQueue.push(() => showBadgePopup(id)));
+
+  // Level up check
+  if (newLv > prevLv) {
+    rewardQueue.push(() => showLevelUp(newLv));
+  }
+
+  // Show first queued reward
+  if (rewardQueue.length) {
+    const first = rewardQueue.shift();
+    first();
+  }
+}
+
+// =====================================================================
 // STATE
-// =====================
+// =====================================================================
 let curDate = todayStr();
-let curTab = 'today';
-let wChart = null;
+let curTab  = 'today';
+let wChart  = null;
 
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 
@@ -405,16 +778,15 @@ function fmtDate(ds) {
   const days = ['日','月','火','水','木','金','土'];
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
 }
-
 function fmtShort(ds) {
   const d = new Date(ds + 'T00:00:00');
   const days = ['日','月','火','水','木','金','土'];
   return `${d.getMonth()+1}/${d.getDate()}（${days[d.getDay()]}）`;
 }
 
-// =====================
+// =====================================================================
 // UTILS
-// =====================
+// =====================================================================
 function showToast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -422,15 +794,11 @@ function showToast(msg) {
   clearTimeout(el._t);
   el._t = setTimeout(() => el.classList.remove('show'), 2200);
 }
-
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-function catLabel(c) { return {breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'}[c] || c; }
-
+function catLabel(c) { return {breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'}[c]||c; }
 function totals(meals) {
   return (meals||[]).reduce((a,m) => ({
     calories: a.calories + (+m.calories||0),
@@ -439,18 +807,16 @@ function totals(meals) {
     carbs:    a.carbs    + (+m.carbs   ||0),
   }), { calories:0, protein:0, fat:0, carbs:0 });
 }
-
 function pct(v, g) { return g ? Math.min(Math.round(v/g*100), 999) : 0; }
-
 function pctClass(p) {
   if (p >= 100) return 'pct-over';
-  if (p >= 80) return 'pct-ok';
+  if (p >= 80)  return 'pct-ok';
   return 'pct-warn';
 }
 
-// =====================
+// =====================================================================
 // DATE NAV
-// =====================
+// =====================================================================
 function changeDate(delta) {
   const d = new Date(curDate + 'T00:00:00');
   d.setDate(d.getDate() + delta);
@@ -458,61 +824,56 @@ function changeDate(delta) {
   document.getElementById('currentDate').value = curDate;
   renderTab();
 }
-
 function onDateChange() {
   curDate = document.getElementById('currentDate').value;
   renderTab();
 }
-
 function goToToday() {
   curDate = todayStr();
   document.getElementById('currentDate').value = curDate;
   renderTab();
 }
 
-// =====================
+// =====================================================================
 // TABS
-// =====================
-const TABS = ['today','past','weight','weekly','templates','goals'];
+// =====================================================================
+const TABS = ['today','past','weight','weekly','templates','goals','game'];
 
 function switchTab(tab) {
   curTab = tab;
-  document.querySelectorAll('.nav-tab').forEach((el, i) => {
-    el.classList.toggle('active', TABS[i] === tab);
-  });
-  TABS.forEach(t => {
-    document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
-  });
+  document.querySelectorAll('.nav-tab').forEach((el, i) => el.classList.toggle('active', TABS[i] === tab));
+  TABS.forEach(t => document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab));
   renderTab();
 }
-
 function renderTab() {
-  if (curTab === 'today')     renderToday();
-  else if (curTab === 'past') renderPast();
-  else if (curTab === 'weight') renderWeight();
-  else if (curTab === 'weekly') renderWeekly();
+  if      (curTab === 'today')     renderToday();
+  else if (curTab === 'past')      renderPast();
+  else if (curTab === 'weight')    renderWeight();
+  else if (curTab === 'weekly')    renderWeekly();
   else if (curTab === 'templates') renderTemplates();
-  else if (curTab === 'goals') renderGoals();
+  else if (curTab === 'goals')     renderGoals();
+  else if (curTab === 'game')      renderGameTab();
 }
 
-// =====================
+// =====================================================================
 // TODAY
-// =====================
+// =====================================================================
 function renderToday() {
-  const rec = getRec(curDate);
+  const rec   = getRec(curDate);
   const goals = getGoals();
-  const tot = totals(rec.meals);
+  const tot   = totals(rec.meals);
 
   document.getElementById('weightInput').value = rec.weight != null ? rec.weight : '';
 
-  // Stats cards
-  const items = [
-    { label:'🔥 カロリー', val: Math.round(tot.calories), unit:'kcal', goal: goals.calories },
-    { label:'💪 たんぱく質', val: tot.protein.toFixed(1), unit:'g', goal: goals.protein },
-    { label:'🧈 脂質', val: tot.fat.toFixed(1), unit:'g', goal: goals.fat },
-    { label:'🌾 炭水化物', val: tot.carbs.toFixed(1), unit:'g', goal: goals.carbs },
-  ];
+  renderMissions();
 
+  // Stats
+  const items = [
+    { label:'🔥 カロリー',   val: Math.round(tot.calories), unit:'kcal', goal: goals.calories },
+    { label:'💪 たんぱく質', val: tot.protein.toFixed(1),    unit:'g',    goal: goals.protein },
+    { label:'🧈 脂質',       val: tot.fat.toFixed(1),        unit:'g',    goal: goals.fat },
+    { label:'🌾 炭水化物',   val: tot.carbs.toFixed(1),      unit:'g',    goal: goals.carbs },
+  ];
   document.getElementById('todayStats').innerHTML = items.map(item => {
     const p = pct(parseFloat(item.val), item.goal);
     return `<div class="stat-card">
@@ -525,10 +886,10 @@ function renderToday() {
 
   // Progress bars
   const progs = [
-    { label:'カロリー', v: Math.round(tot.calories), g: goals.calories, cls:'p-cal' },
-    { label:'たんぱく質', v: tot.protein.toFixed(1), g: goals.protein, cls:'p-pro' },
-    { label:'脂質', v: tot.fat.toFixed(1), g: goals.fat, cls:'p-fat' },
-    { label:'炭水化物', v: tot.carbs.toFixed(1), g: goals.carbs, cls:'p-carb' },
+    { label:'カロリー',   v: Math.round(tot.calories), g: goals.calories, cls:'p-cal'  },
+    { label:'たんぱく質', v: tot.protein.toFixed(1),    g: goals.protein,  cls:'p-pro'  },
+    { label:'脂質',       v: tot.fat.toFixed(1),        g: goals.fat,      cls:'p-fat'  },
+    { label:'炭水化物',   v: tot.carbs.toFixed(1),      g: goals.carbs,    cls:'p-carb' },
   ];
   document.getElementById('progressSection').innerHTML = progs.map(p => {
     const pv = pct(parseFloat(p.v), p.g);
@@ -550,13 +911,10 @@ function renderToday() {
     document.getElementById('mealList').innerHTML = `<div class="empty"><div class="empty-icon">🍽️</div><div>まだ記録がありません<br>上のフォームから追加してください</div></div>`;
     return;
   }
-
   const order = ['breakfast','lunch','dinner','snack'];
   let html = '';
   order.forEach(cat => {
-    const group = meals.filter(m => m.category === cat);
-    if (!group.length) return;
-    group.forEach(m => {
+    meals.filter(m => m.category === cat).forEach(m => {
       html += `<div class="meal-item">
         <div class="meal-head">
           <div>
@@ -590,8 +948,9 @@ function saveWeight() {
 function addMeal() {
   const name = document.getElementById('mealName').value.trim();
   if (!name) { showToast('⚠️ 食品名を入力してください'); return; }
+  const prevXP = computeXP();
   const meal = {
-    id: genId(),
+    id:       genId(),
     category: document.getElementById('mealCategory').value,
     name,
     calories: parseFloat(document.getElementById('mealCalories').value) || 0,
@@ -604,19 +963,22 @@ function addMeal() {
   rec.meals.push(meal);
   saveRec(curDate, rec);
   ['mealName','mealCalories','mealProtein','mealFat','mealCarbs'].forEach(id => document.getElementById(id).value = '');
-  showToast('✅ 追加しました！');
+  showToast('✅ 追加しました！ +10 XP');
   renderToday();
+  runGameChecks(prevXP);
 }
 
 function quickAdd(id) {
   const t = getTmpl().find(x => x.id === id);
   if (!t) return;
+  const prevXP = computeXP();
   const rec = getRec(curDate);
   rec.meals = rec.meals || [];
   rec.meals.push({ id: genId(), category: t.category, name: t.name, calories: t.calories, protein: t.protein, fat: t.fat, carbs: t.carbs });
   saveRec(curDate, rec);
-  showToast(`✅ 「${t.name}」を追加！`);
+  showToast(`✅ 「${t.name}」を追加！ +10 XP`);
   renderToday();
+  runGameChecks(prevXP);
 }
 
 function delMeal(id) {
@@ -626,11 +988,13 @@ function delMeal(id) {
   saveRec(curDate, rec);
   showToast('🗑️ 削除しました');
   renderToday();
+  renderGameBar();
+  renderMissions();
 }
 
-// =====================
+// =====================================================================
 // EDIT MODAL
-// =====================
+// =====================================================================
 function openEdit(id) {
   const m = (getRec(curDate).meals||[]).find(x => x.id === id);
   if (!m) return;
@@ -643,14 +1007,13 @@ function openEdit(id) {
   document.getElementById('editCarbs').value = m.carbs;
   document.getElementById('editModal').classList.add('show');
 }
-
 function closeModal() { document.getElementById('editModal').classList.remove('show'); }
-
 function saveEdit() {
   const id = document.getElementById('editId').value;
   const rec = getRec(curDate);
   const idx = (rec.meals||[]).findIndex(m => m.id === id);
   if (idx < 0) return;
+  const prevXP = computeXP();
   rec.meals[idx] = {
     ...rec.meals[idx],
     category: document.getElementById('editCategory').value,
@@ -664,13 +1027,14 @@ function saveEdit() {
   closeModal();
   showToast('✅ 更新しました！');
   renderToday();
+  runGameChecks(prevXP);
 }
-
 document.getElementById('editModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('rewardModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeReward(); });
 
-// =====================
+// =====================================================================
 // PAST
-// =====================
+// =====================================================================
 function renderPast() {
   const recs = getRecs();
   const dates = Object.keys(recs).sort().reverse();
@@ -693,16 +1057,15 @@ function renderPast() {
     </div>`;
   }).join('');
 }
-
 function goDate(d) {
   curDate = d;
   document.getElementById('currentDate').value = d;
   switchTab('today');
 }
 
-// =====================
+// =====================================================================
 // WEIGHT CHART
-// =====================
+// =====================================================================
 function renderWeight() {
   const recs = getRecs();
   const today = new Date();
@@ -714,62 +1077,35 @@ function renderWeight() {
     const r = recs[ds];
     data.push(r && r.weight != null ? r.weight : null);
   }
-
   const ctx = document.getElementById('weightChart').getContext('2d');
   if (wChart) wChart.destroy();
   wChart = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '体重 (kg)',
-        data,
-        borderColor: '#4a90d9',
-        backgroundColor: 'rgba(74,144,217,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 5,
-        pointBackgroundColor: '#4a90d9',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        spanGaps: true,
-      }]
-    },
+    data: { labels, datasets: [{
+      label: '体重 (kg)', data,
+      borderColor: '#4a90d9', backgroundColor: 'rgba(74,144,217,0.12)',
+      fill: true, tension: 0.4, pointRadius: 5,
+      pointBackgroundColor: '#4a90d9', pointBorderColor: '#fff', pointBorderWidth: 2,
+      spanGaps: true,
+    }]},
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' kg' } }
-      },
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' kg' } } },
       scales: {
         y: { beginAtZero: false, ticks: { callback: v => v + ' kg' } },
         x: { ticks: { maxTicksLimit: 10 } }
       }
     }
   });
-
-  // Weight list
-  const entries = Object.entries(recs)
-    .filter(([,r]) => r.weight != null)
-    .sort((a,b) => b[0].localeCompare(a[0]))
-    .slice(0, 30);
-
-  if (!entries.length) {
-    document.getElementById('weightList').innerHTML = `<div class="empty"><div>体重の記録がありません</div></div>`;
-    return;
-  }
-
-  document.getElementById('weightList').innerHTML = entries.map(([d,r]) =>
-    `<div class="weekly-row">
-      <span class="weekly-label">${fmtShort(d)}</span>
-      <span class="weekly-val">${r.weight} kg</span>
-    </div>`
-  ).join('');
+  const entries = Object.entries(recs).filter(([,r]) => r.weight != null).sort((a,b) => b[0].localeCompare(a[0])).slice(0,30);
+  document.getElementById('weightList').innerHTML = entries.length
+    ? entries.map(([d,r]) => `<div class="weekly-row"><span class="weekly-label">${fmtShort(d)}</span><span class="weekly-val">${r.weight} kg</span></div>`).join('')
+    : `<div class="empty"><div>体重の記録がありません</div></div>`;
 }
 
-// =====================
+// =====================================================================
 // WEEKLY
-// =====================
+// =====================================================================
 function renderWeekly() {
   const recs = getRecs();
   const today = new Date();
@@ -780,21 +1116,18 @@ function renderWeekly() {
     const r = recs[ds];
     if (r && (r.meals||[]).length) days.push({ date: ds, ...totals(r.meals) });
   }
-
   if (!days.length) {
     document.getElementById('weeklyStats').innerHTML = `<div class="empty"><div>まだデータがありません。<br>今日から記録を始めましょう！</div></div>`;
     return;
   }
-
   const n = days.length;
   const avg = {
-    calories: days.reduce((s,d) => s+d.calories,0) / n,
-    protein:  days.reduce((s,d) => s+d.protein,0)  / n,
-    fat:      days.reduce((s,d) => s+d.fat,0)      / n,
-    carbs:    days.reduce((s,d) => s+d.carbs,0)    / n,
+    calories: days.reduce((s,d)=>s+d.calories,0)/n,
+    protein:  days.reduce((s,d)=>s+d.protein,0)/n,
+    fat:      days.reduce((s,d)=>s+d.fat,0)/n,
+    carbs:    days.reduce((s,d)=>s+d.carbs,0)/n,
   };
   const goals = getGoals();
-
   document.getElementById('weeklyStats').innerHTML = `
     <p class="section-note">過去7日間のうち記録がある<b>${n}日分</b>の平均値</p>
     <div class="weekly-row"><span class="weekly-label">🔥 平均カロリー</span><span class="weekly-val">${Math.round(avg.calories)} kcal / 日</span></div>
@@ -807,8 +1140,7 @@ function renderWeekly() {
         const p = Math.min(pct(d.calories, goals.calories), 100);
         return `<div style="margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-            <span>${fmtShort(d.date)}</span>
-            <span>${Math.round(d.calories)} kcal</span>
+            <span>${fmtShort(d.date)}</span><span>${Math.round(d.calories)} kcal</span>
           </div>
           <div class="progress-bar"><div class="progress-fill p-cal" style="width:${p}%"></div></div>
         </div>`;
@@ -816,9 +1148,9 @@ function renderWeekly() {
     </div>`;
 }
 
-// =====================
+// =====================================================================
 // TEMPLATES
-// =====================
+// =====================================================================
 function renderTemplates() {
   const tmpls = getTmpl();
   if (!tmpls.length) {
@@ -845,14 +1177,12 @@ function renderTemplates() {
       </div>
     </div>`).join('');
 }
-
 function addTemplate() {
   const name = document.getElementById('tmplName').value.trim();
   if (!name) { showToast('⚠️ 食品名を入力してください'); return; }
   const tmpls = getTmpl();
   tmpls.push({
-    id: genId(),
-    name,
+    id: genId(), name,
     category: document.getElementById('tmplCategory').value,
     calories: parseFloat(document.getElementById('tmplCalories').value) || 0,
     protein:  parseFloat(document.getElementById('tmplProtein').value)  || 0,
@@ -864,30 +1194,24 @@ function addTemplate() {
   showToast('✅ テンプレートを保存しました！');
   renderTemplates();
 }
-
 function delTmpl(id) {
   if (!confirm('このテンプレートを削除しますか？')) return;
   saveTmpl(getTmpl().filter(t => t.id !== id));
   showToast('🗑️ 削除しました');
   renderTemplates();
 }
+function addTmplToday(id) { quickAdd(id); switchTab('today'); }
 
-function addTmplToday(id) {
-  quickAdd(id);
-  switchTab('today');
-}
-
-// =====================
+// =====================================================================
 // GOALS
-// =====================
+// =====================================================================
 function renderGoals() {
   const g = getGoals();
   document.getElementById('goalCalories').value = g.calories;
-  document.getElementById('goalProtein').value = g.protein;
-  document.getElementById('goalFat').value = g.fat;
-  document.getElementById('goalCarbs').value = g.carbs;
+  document.getElementById('goalProtein').value  = g.protein;
+  document.getElementById('goalFat').value       = g.fat;
+  document.getElementById('goalCarbs').value     = g.carbs;
 }
-
 function saveGoals() {
   const g = {
     calories: parseFloat(document.getElementById('goalCalories').value) || 2500,
@@ -897,28 +1221,28 @@ function saveGoals() {
   };
   localStorage.setItem(K.GOALS, JSON.stringify(g));
   showToast('✅ 目標を保存しました！');
+  renderGameBar();
+  renderMissions();
 }
 
-// =====================
+// =====================================================================
 // DUMMY DATA
-// =====================
+// =====================================================================
 function insertDummy() {
   if (Object.keys(getRecs()).length > 0) return;
   const today = todayStr();
   const recs = {};
-
   recs[today] = {
     weight: 72.5,
     meals: [
-      { id:genId(), category:'breakfast', name:'オートミール 80g', calories:280, protein:10, fat:5, carbs:48 },
-      { id:genId(), category:'breakfast', name:'卵 2個', calories:152, protein:12.4, fat:10, carbs:0.4 },
-      { id:genId(), category:'breakfast', name:'バナナ 1本', calories:86, protein:1, fat:0.2, carbs:22 },
-      { id:genId(), category:'lunch', name:'鶏むね肉 200g', calories:216, protein:46, fat:3, carbs:0 },
-      { id:genId(), category:'lunch', name:'ご飯 300g', calories:504, protein:7.5, fat:0.75, carbs:111 },
-      { id:genId(), category:'snack', name:'ホエイプロテイン 1杯', calories:110, protein:20, fat:1.5, carbs:6 },
+      { id:genId(), category:'breakfast', name:'オートミール 80g',    calories:280, protein:10,   fat:5,    carbs:48  },
+      { id:genId(), category:'breakfast', name:'卵 2個',               calories:152, protein:12.4, fat:10,   carbs:0.4 },
+      { id:genId(), category:'breakfast', name:'バナナ 1本',            calories:86,  protein:1,    fat:0.2,  carbs:22  },
+      { id:genId(), category:'lunch',     name:'鶏むね肉 200g',         calories:216, protein:46,   fat:3,    carbs:0   },
+      { id:genId(), category:'lunch',     name:'ご飯 300g',             calories:504, protein:7.5,  fat:0.75, carbs:111 },
+      { id:genId(), category:'snack',     name:'ホエイプロテイン 1杯',  calories:110, protein:20,   fat:1.5,  carbs:6   },
     ]
   };
-
   const baseWeights = [73.2, 73.0, 72.8, 72.9, 72.7, 72.6, 72.8];
   for (let i = 1; i <= 7; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
@@ -926,23 +1250,25 @@ function insertDummy() {
     recs[ds] = {
       weight: baseWeights[i-1],
       meals: [
-        { id:genId(), category:'breakfast', name:'トースト＆卵', calories:310+Math.floor(Math.random()*60), protein:14, fat:8, carbs:42 },
-        { id:genId(), category:'lunch', name:`サンプル昼食 ${i}`, calories:620+Math.floor(Math.random()*150), protein:28, fat:14, carbs:78 },
-        { id:genId(), category:'dinner', name:`サンプル夕食 ${i}`, calories:580+Math.floor(Math.random()*120), protein:32, fat:12, carbs:68 },
-        { id:genId(), category:'snack', name:'プロテイン', calories:110, protein:20, fat:1.5, carbs:6 },
+        { id:genId(), category:'breakfast', name:'トースト＆卵',      calories:310+Math.floor(Math.random()*60),  protein:14, fat:8,  carbs:42 },
+        { id:genId(), category:'lunch',     name:`サンプル昼食 ${i}`, calories:620+Math.floor(Math.random()*150), protein:28, fat:14, carbs:78 },
+        { id:genId(), category:'dinner',    name:`サンプル夕食 ${i}`, calories:580+Math.floor(Math.random()*120), protein:32, fat:12, carbs:68 },
+        { id:genId(), category:'snack',     name:'プロテイン',         calories:110, protein:20, fat:1.5, carbs:6  },
       ]
     };
   }
-
   localStorage.setItem(K.REC, JSON.stringify(recs));
+  // Award initial badges for dummy data
+  checkAndAwardBadges();
 }
 
-// =====================
+// =====================================================================
 // INIT
-// =====================
+// =====================================================================
 function init() {
   insertDummy();
   document.getElementById('currentDate').value = curDate;
+  renderGameBar();
   renderToday();
 }
 
