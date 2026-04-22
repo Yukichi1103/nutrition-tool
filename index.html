@@ -215,6 +215,31 @@ select.fi{cursor:pointer}
 /* ── CHART ── */
 .chart-wrap{position:relative;height:220px}
 
+/* ── WEIGHT SECTION ── */
+.ws-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:16px;box-shadow:0 0 28px rgba(0,212,255,.06)}
+.ws-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:480px){.ws-stats{grid-template-columns:repeat(4,1fr)}}
+.wssc{background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:10px;padding:11px 10px;text-align:center}
+.wssc-l{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px}
+.wssc-v{font-size:20px;font-weight:800;line-height:1.1}
+.wssc-s{font-size:11px;margin-top:3px;color:var(--muted)}
+.ws-goal-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ws-gl{font-size:12px;color:var(--dim);font-weight:600;white-space:nowrap}
+.wgi{width:88px;background:rgba(255,255,255,.05);border:1.5px solid var(--b2);border-radius:6px;color:var(--text);font-size:14px;font-weight:700;padding:5px 8px;text-align:center;-webkit-appearance:none;appearance:none}
+.wgi:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.ws-gdiff{font-size:13px;font-weight:700}
+.ws-period{display:flex;gap:6px;margin-bottom:12px}
+.wpb{flex:1;padding:8px 0;background:rgba(255,255,255,.04);border:1px solid var(--b1);border-radius:8px;color:var(--dim);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.wpb.on{background:rgba(0,212,255,.12);border-color:rgba(0,212,255,.4);color:var(--cyan);box-shadow:0 0 10px rgba(0,212,255,.15)}
+.ws-comment{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:14px;font-size:14px;font-weight:600}
+.wc-up  {background:rgba(34,197,94,.09); border:1px solid rgba(34,197,94,.28); color:var(--green)}
+.wc-down{background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.22); color:var(--red)}
+.wc-flat{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);color:var(--amber)}
+.wc-none{background:rgba(255,255,255,.03);border:1px solid var(--b1);color:var(--muted)}
+.ws-empty{text-align:center;padding:44px 20px}
+.ws-empty-icon{font-size:38px;margin-bottom:10px;opacity:.35;display:block}
+.ws-empty-txt{color:var(--muted);font-size:14px;line-height:1.6}
+
 /* ── MODALS ── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px}
 .modal-ov.show{display:flex}
@@ -357,9 +382,28 @@ select.fi{cursor:pointer}
   <div class="sec-hdr"><span class="sec-ttl">⚔️ ステータス</span><div class="sec-line"></div></div>
   <div class="st-grid" id="statusGrid"></div>
 
-  <!-- WEIGHT CHART -->
-  <div class="sec-hdr"><span class="sec-ttl">📉 体重推移（30日）</span><div class="sec-line"></div></div>
-  <div class="card"><div class="chart-wrap"><canvas id="weightChart"></canvas></div></div>
+  <!-- WEIGHT SECTION -->
+  <div class="sec-hdr"><span class="sec-ttl">📉 体重推移</span><div class="sec-line"></div></div>
+  <div class="ws-card">
+    <!-- Stats row -->
+    <div class="ws-stats" id="wsStats"></div>
+    <!-- Goal weight -->
+    <div class="ws-goal-row">
+      <span class="ws-gl">🎯 目標体重</span>
+      <input type="number" id="goalWeightInput" class="wgi" step="0.1" min="0" max="300" placeholder="65.0" oninput="saveGoalWeight()">
+      <span style="font-size:12px;color:var(--dim)">kg</span>
+      <span id="wsGoalDiff" class="ws-gdiff"></span>
+    </div>
+    <!-- Period switcher -->
+    <div class="ws-period">
+      <button class="wpb" id="wpb7"  onclick="setWPeriod(7)">📅 7日</button>
+      <button class="wpb on" id="wpb30" onclick="setWPeriod(30)">📅 30日</button>
+    </div>
+    <!-- Trend comment -->
+    <div id="wsComment"></div>
+    <!-- Chart or empty -->
+    <div id="wsChartArea"><div class="chart-wrap"><canvas id="weightChart"></canvas></div></div>
+  </div>
 
   <!-- PAST -->
   <div class="sec-hdr"><span class="sec-ttl">📅 過去記録</span><div class="sec-line"></div></div>
@@ -474,9 +518,10 @@ const saveTmpl = t => localStorage.setItem(K.TMPL, JSON.stringify(t));
 // ════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════
-let curDate = todayStr();
-let wChart  = null;
-let rewQ    = [];
+let curDate  = todayStr();
+let wChart   = null;
+let rewQ     = [];
+let wPeriod  = 30;
 
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 function fmtDate(ds) {
@@ -837,32 +882,195 @@ function renderStatus() {
 }
 
 // ════════════════════════════════════════════════
-// RENDER: WEIGHT CHART
+// RENDER: WEIGHT SECTION (stats + comment + chart)
 // ════════════════════════════════════════════════
-function renderChart() {
-  const recs=getRecs(), today=new Date(), labels=[], data=[];
-  for(let i=29;i>=0;i--){
-    const d=new Date(today); d.setDate(d.getDate()-i);
-    const ds=d.toISOString().split('T')[0];
-    labels.push(`${d.getMonth()+1}/${d.getDate()}`);
-    const r=recs[ds]; data.push(r&&r.weight!=null?r.weight:null);
+
+function setWPeriod(n) {
+  wPeriod = n;
+  document.getElementById('wpb7').classList.toggle('on', n===7);
+  document.getElementById('wpb30').classList.toggle('on', n===30);
+  renderWeightSection();
+}
+
+function saveGoalWeight() {
+  const v = parseFloat(document.getElementById('goalWeightInput').value);
+  if (isNaN(v)) { localStorage.removeItem('nt_goalweight'); }
+  else { localStorage.setItem('nt_goalweight', v); }
+  renderWeightSection();
+}
+
+function renderWeightSection() {
+  const recs    = getRecs();
+  const today   = new Date();
+  const todayDs = todayStr();
+
+  // ── build day array ──
+  const days = [];
+  for (let i = wPeriod - 1; i >= 0; i--) {
+    const d  = new Date(today); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const r  = recs[ds];
+    days.push({ ds, label:`${d.getMonth()+1}/${d.getDate()}`, w: r&&r.weight!=null ? r.weight : null });
   }
-  const ctx=document.getElementById('weightChart').getContext('2d');
+
+  const recorded = days.filter(d => d.w !== null);
+  const hasData  = recorded.length >= 1;
+
+  // ── today & yesterday ──
+  const todayRec = recs[todayDs];
+  const todayW   = todayRec && todayRec.weight != null ? todayRec.weight : null;
+
+  const ydDs = (()=>{ const d=new Date(today); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; })();
+  const ydRec = recs[ydDs];
+  const ydW   = ydRec && ydRec.weight != null ? ydRec.weight : null;
+
+  // ── 7-day average ──
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const r=recs[d.toISOString().split('T')[0]];
+    if (r && r.weight!=null) last7.push(r.weight);
+  }
+  const avg7 = last7.length ? (last7.reduce((a,b)=>a+b,0)/last7.length) : null;
+
+  // ── goal weight ──
+  const gw = parseFloat(localStorage.getItem('nt_goalweight')) || null;
+  const goalInput = document.getElementById('goalWeightInput');
+  if (goalInput && document.activeElement !== goalInput) {
+    goalInput.value = gw !== null ? gw : '';
+  }
+
+  // ── goal diff ──
+  const gdEl = document.getElementById('wsGoalDiff');
+  if (gw !== null && todayW !== null) {
+    const diff = (todayW - gw).toFixed(1);
+    if (diff > 0) { gdEl.textContent = `目標まで −${diff} kg`; gdEl.style.color='var(--amber)'; }
+    else if (diff < 0) { gdEl.textContent = `目標を ${Math.abs(diff)} kg 超過`; gdEl.style.color='var(--green)'; }
+    else { gdEl.textContent = '🎯 目標達成！'; gdEl.style.color='var(--cyan)'; }
+  } else { gdEl.textContent = gw===null ? '目標を入力してください' : '体重を入力してください'; gdEl.style.color='var(--muted)'; }
+
+  // ── stats cards ──
+  const dayDiff = (todayW!==null && ydW!==null) ? (todayW - ydW) : null;
+  const diffSign = dayDiff===null ? null : dayDiff > 0 ? '+' : '';
+  const diffColor = dayDiff===null ? 'var(--muted)' : dayDiff > 0 ? 'var(--amber)' : dayDiff < 0 ? 'var(--green)' : 'var(--dim)';
+
+  document.getElementById('wsStats').innerHTML = `
+    <div class="wssc">
+      <div class="wssc-l">今日の体重</div>
+      <div class="wssc-v" style="color:var(--cyan)">${todayW!==null ? todayW+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400"> kg</span></div>
+      <div class="wssc-s">${todayW!==null ? '記録済み ✓' : '未記録'}</div>
+    </div>
+    <div class="wssc">
+      <div class="wssc-l">前日比</div>
+      <div class="wssc-v" style="color:${diffColor}">${dayDiff!==null ? diffSign+dayDiff.toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${dayDiff!==null?' kg':''}</span></div>
+      <div class="wssc-s">${ydW!==null ? '昨日: '+ydW+' kg' : '昨日データなし'}</div>
+    </div>
+    <div class="wssc">
+      <div class="wssc-l">7日平均</div>
+      <div class="wssc-v" style="color:var(--purp)">${avg7!==null ? avg7.toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${avg7!==null?' kg':''}</span></div>
+      <div class="wssc-s">${last7.length}日分のデータ</div>
+    </div>
+    <div class="wssc">
+      <div class="wssc-l">目標まで</div>
+      <div class="wssc-v" style="color:${gw&&todayW?(todayW>gw?'var(--amber)':'var(--green)'):'var(--muted)'}">${gw&&todayW ? Math.abs(todayW-gw).toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${gw&&todayW?' kg':''}</span></div>
+      <div class="wssc-s">${gw ? '目標: '+gw+' kg' : '未設定'}</div>
+    </div>`;
+
+  // ── trend comment ──
+  const commentEl = document.getElementById('wsComment');
+  if (recorded.length < 2) {
+    commentEl.innerHTML = `<div class="ws-comment wc-none">💬 &nbsp;データを積み重ねることでトレンドが表示されます</div>`;
+  } else {
+    // compare first half vs second half of recorded data
+    const half = Math.floor(recorded.length / 2);
+    const firstHalf  = recorded.slice(0, half).map(d=>d.w);
+    const secondHalf = recorded.slice(-half).map(d=>d.w);
+    const avgFirst  = firstHalf.reduce((a,b)=>a+b,0)  / firstHalf.length;
+    const avgSecond = secondHalf.reduce((a,b)=>a+b,0) / secondHalf.length;
+    const delta = +(avgSecond - avgFirst).toFixed(2);
+
+    let cls, icon, msg;
+    if      (delta >=  0.5) { cls='wc-up';   icon='📈'; msg=`増量順調！ ${wPeriod}日で +${delta} kg の増加トレンド`; }
+    else if (delta >=  0.1) { cls='wc-up';   icon='📈'; msg=`増量傾向 (+${delta} kg)。このまま続けよう！`; }
+    else if (delta <= -0.5) { cls='wc-down';  icon='📉'; msg=`減少傾向 (${delta} kg)。カロリーを見直そう`; }
+    else if (delta <= -0.1) { cls='wc-down';  icon='📉'; msg=`やや減少傾向 (${delta} kg)。食事量を確認`; }
+    else                    { cls='wc-flat';  icon='➡️'; msg=`停滞中 (${delta >= 0 ? '+' : ''}${delta} kg)。食事や運動を見直すタイミング`; }
+
+    commentEl.innerHTML = `<div class="ws-comment ${cls}">${icon} &nbsp;${msg}</div>`;
+  }
+
+  // ── chart or empty ──
+  const chartArea = document.getElementById('wsChartArea');
+  if (!hasData) {
+    if (wChart) { wChart.destroy(); wChart = null; }
+    chartArea.innerHTML = `
+      <div class="ws-empty">
+        <span class="ws-empty-icon">⚖️</span>
+        <div class="ws-empty-txt">体重を記録するとグラフが表示されます<br>
+        <span style="font-size:12px;color:var(--muted)">毎日の記録が増量・減量の把握につながります</span></div>
+      </div>`;
+    return;
+  }
+
+  if (!document.getElementById('weightChart')) {
+    chartArea.innerHTML = '<div class="chart-wrap"><canvas id="weightChart"></canvas></div>';
+  }
+
+  const labels = days.map(d => d.label);
+  const data   = days.map(d => d.w);
+
+  const ctx = document.getElementById('weightChart').getContext('2d');
   if (wChart) wChart.destroy();
-  wChart=new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:[{
-      label:'体重(kg)',data,
-      borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.07)',
-      fill:true,tension:.4,pointRadius:4,spanGaps:true,
-      pointBackgroundColor:'#00d4ff',pointBorderColor:'#080d18',pointBorderWidth:2,
-    }]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' kg'}}},
-      scales:{
-        y:{beginAtZero:false,ticks:{callback:v=>v+'kg',color:'#475569'},grid:{color:'rgba(255,255,255,.04)'}},
-        x:{ticks:{maxTicksLimit:10,color:'#475569'},grid:{color:'rgba(255,255,255,.04)'}},
+
+  // gradient fill
+  const grad = ctx.createLinearGradient(0, 0, 0, 220);
+  grad.addColorStop(0, 'rgba(0,212,255,.18)');
+  grad.addColorStop(1, 'rgba(0,212,255,0)');
+
+  wChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: '体重(kg)', data,
+        borderColor: '#00d4ff',
+        backgroundColor: grad,
+        fill: true, tension: .4, spanGaps: true,
+        pointRadius: days.map(d => d.w !== null ? 4 : 0),
+        pointBackgroundColor: '#00d4ff',
+        pointBorderColor: '#080d18',
+        pointBorderWidth: 2,
+        pointHoverRadius: 7,
+        borderWidth: 2.5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(13,20,36,.92)',
+          borderColor: 'rgba(0,212,255,.3)',
+          borderWidth: 1,
+          titleColor: '#94a3b8',
+          bodyColor: '#e2e8f0',
+          bodyFont: { weight: 'bold', size: 14 },
+          callbacks: {
+            label: c => c.parsed.y != null ? ` ${c.parsed.y} kg` : ' データなし',
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { callback: v => v + ' kg', color: '#475569', font: { size: 11 } },
+          grid:  { color: 'rgba(255,255,255,.04)' },
+        },
+        x: {
+          ticks: { maxTicksLimit: wPeriod === 7 ? 7 : 10, color: '#475569', font: { size: 11 } },
+          grid:  { color: 'rgba(255,255,255,.03)' },
+        }
       }
     }
   });
@@ -973,7 +1181,7 @@ function renderPage() {
   renderMeals();
   renderBadges();
   renderStatus();
-  renderChart();
+  renderWeightSection();
 }
 
 // ════════════════════════════════════════════════
@@ -1000,6 +1208,7 @@ function saveWeight() {
   rec.weight=isNaN(v)?null:v;
   saveRec(curDate,rec);
   refresh();
+  renderWeightSection();
   runGameChecks(prevXP);
 }
 
