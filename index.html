@@ -213,7 +213,7 @@ select.fi{cursor:pointer}
 .tag-td{display:inline-block;background:var(--cyan);color:#000;font-size:10px;padding:2px 7px;border-radius:5px;margin-left:6px;font-weight:800;vertical-align:middle}
 
 /* ── CHART ── */
-.chart-wrap{position:relative;height:220px}
+.chart-wrap{position:relative;height:240px}
 
 /* ── WEIGHT SECTION ── */
 .ws-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:16px;box-shadow:0 0 28px rgba(0,212,255,.06)}
@@ -239,6 +239,12 @@ select.fi{cursor:pointer}
 .ws-empty{text-align:center;padding:44px 20px}
 .ws-empty-icon{font-size:38px;margin-bottom:10px;opacity:.35;display:block}
 .ws-empty-txt{color:var(--muted);font-size:14px;line-height:1.6}
+.wc-delta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.wcd{background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px}
+.wcd-icon{font-size:18px;flex-shrink:0}
+.wcd-info{flex:1}
+.wcd-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.wcd-val{font-size:17px;font-weight:800;line-height:1}
 
 /* ── MODALS ── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px}
@@ -398,9 +404,12 @@ select.fi{cursor:pointer}
     <div class="ws-period">
       <button class="wpb" id="wpb7"  onclick="setWPeriod(7)">📅 7日</button>
       <button class="wpb on" id="wpb30" onclick="setWPeriod(30)">📅 30日</button>
+      <button class="wpb" id="wpbAll" onclick="setWPeriod(0)">📅 全期間</button>
     </div>
     <!-- Trend comment -->
     <div id="wsComment"></div>
+    <!-- Delta / changes -->
+    <div id="wsDelta"></div>
     <!-- Chart or empty -->
     <div id="wsChartArea"><div class="chart-wrap"><canvas id="weightChart"></canvas></div></div>
   </div>
@@ -889,6 +898,7 @@ function setWPeriod(n) {
   wPeriod = n;
   document.getElementById('wpb7').classList.toggle('on', n===7);
   document.getElementById('wpb30').classList.toggle('on', n===30);
+  document.getElementById('wpbAll').classList.toggle('on', n===0);
   renderWeightSection();
 }
 
@@ -905,33 +915,52 @@ function renderWeightSection() {
   const todayDs = todayStr();
 
   // ── build day array ──
-  const days = [];
-  for (let i = wPeriod - 1; i >= 0; i--) {
-    const d  = new Date(today); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    const r  = recs[ds];
-    days.push({ ds, label:`${d.getMonth()+1}/${d.getDate()}`, w: r&&r.weight!=null ? r.weight : null });
+  let days = [];
+  if (wPeriod === 0) {
+    const allDates = Object.keys(recs).sort();
+    if (allDates.length > 0) {
+      const first = new Date(allDates[0] + 'T00:00:00');
+      for (let d = new Date(first); d <= today; d.setDate(d.getDate() + 1)) {
+        const ds = d.toISOString().split('T')[0];
+        const r  = recs[ds];
+        const dd = new Date(d);
+        days.push({ ds, label:`${dd.getMonth()+1}/${dd.getDate()}`, w: r&&r.weight!=null ? r.weight : null });
+      }
+    }
+  } else {
+    for (let i = wPeriod - 1; i >= 0; i--) {
+      const d  = new Date(today); d.setDate(d.getDate() - i);
+      const ds = d.toISOString().split('T')[0];
+      const r  = recs[ds];
+      days.push({ ds, label:`${d.getMonth()+1}/${d.getDate()}`, w: r&&r.weight!=null ? r.weight : null });
+    }
   }
 
   const recorded = days.filter(d => d.w !== null);
   const hasData  = recorded.length >= 1;
 
   // ── today & yesterday ──
-  const todayRec = recs[todayDs];
-  const todayW   = todayRec && todayRec.weight != null ? todayRec.weight : null;
+  const todayW = recs[todayDs] && recs[todayDs].weight != null ? recs[todayDs].weight : null;
+  const ydDs   = (() => { const d=new Date(today); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; })();
+  const ydW    = recs[ydDs]   && recs[ydDs].weight   != null ? recs[ydDs].weight   : null;
 
-  const ydDs = (()=>{ const d=new Date(today); d.setDate(d.getDate()-1); return d.toISOString().split('T')[0]; })();
-  const ydRec = recs[ydDs];
-  const ydW   = ydRec && ydRec.weight != null ? ydRec.weight : null;
-
-  // ── 7-day average ──
-  const last7 = [];
+  // ── 7-day average (stat card) ──
+  const last7arr = [];
   for (let i = 6; i >= 0; i--) {
     const d=new Date(today); d.setDate(d.getDate()-i);
     const r=recs[d.toISOString().split('T')[0]];
-    if (r && r.weight!=null) last7.push(r.weight);
+    if (r && r.weight!=null) last7arr.push(r.weight);
   }
-  const avg7 = last7.length ? (last7.reduce((a,b)=>a+b,0)/last7.length) : null;
+  const avg7 = last7arr.length ? +(last7arr.reduce((a,b)=>a+b,0)/last7arr.length).toFixed(1) : null;
+
+  // ── 変化量 (delta) ──
+  const latestW = recorded.length > 0 ? recorded[recorded.length-1].w : null;
+  const d7ago   = new Date(today); d7ago.setDate(d7ago.getDate()-7);
+  const w7ago   = (recs[d7ago.toISOString().split('T')[0]]||{}).weight ?? null;
+  const d30ago  = new Date(today); d30ago.setDate(d30ago.getDate()-30);
+  const w30ago  = (recs[d30ago.toISOString().split('T')[0]]||{}).weight ?? null;
+  const delta7  = (latestW!==null && w7ago!==null)  ? +(latestW - w7ago).toFixed(1)  : null;
+  const delta30 = (latestW!==null && w30ago!==null) ? +(latestW - w30ago).toFixed(1) : null;
 
   // ── goal weight ──
   const gw = parseFloat(localStorage.getItem('nt_goalweight')) || null;
@@ -943,36 +972,35 @@ function renderWeightSection() {
   // ── goal diff ──
   const gdEl = document.getElementById('wsGoalDiff');
   if (gw !== null && todayW !== null) {
-    const diff = (todayW - gw).toFixed(1);
+    const diff = +(todayW - gw).toFixed(1);
     if (diff > 0) { gdEl.textContent = `目標まで −${diff} kg`; gdEl.style.color='var(--amber)'; }
     else if (diff < 0) { gdEl.textContent = `目標を ${Math.abs(diff)} kg 超過`; gdEl.style.color='var(--green)'; }
     else { gdEl.textContent = '🎯 目標達成！'; gdEl.style.color='var(--cyan)'; }
   } else { gdEl.textContent = gw===null ? '目標を入力してください' : '体重を入力してください'; gdEl.style.color='var(--muted)'; }
 
   // ── stats cards ──
-  const dayDiff = (todayW!==null && ydW!==null) ? (todayW - ydW) : null;
-  const diffSign = dayDiff===null ? null : dayDiff > 0 ? '+' : '';
+  const dayDiff   = (todayW!==null && ydW!==null) ? +(todayW - ydW).toFixed(1) : null;
+  const diffSign  = dayDiff===null ? '' : dayDiff > 0 ? '+' : '';
   const diffColor = dayDiff===null ? 'var(--muted)' : dayDiff > 0 ? 'var(--amber)' : dayDiff < 0 ? 'var(--green)' : 'var(--dim)';
-
   document.getElementById('wsStats').innerHTML = `
     <div class="wssc">
       <div class="wssc-l">今日の体重</div>
-      <div class="wssc-v" style="color:var(--cyan)">${todayW!==null ? todayW+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400"> kg</span></div>
+      <div class="wssc-v" style="color:var(--cyan)">${todayW!==null ? todayW : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400"> kg</span></div>
       <div class="wssc-s">${todayW!==null ? '記録済み ✓' : '未記録'}</div>
     </div>
     <div class="wssc">
       <div class="wssc-l">前日比</div>
-      <div class="wssc-v" style="color:${diffColor}">${dayDiff!==null ? diffSign+dayDiff.toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${dayDiff!==null?' kg':''}</span></div>
+      <div class="wssc-v" style="color:${diffColor}">${dayDiff!==null ? diffSign+dayDiff : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${dayDiff!==null?' kg':''}</span></div>
       <div class="wssc-s">${ydW!==null ? '昨日: '+ydW+' kg' : '昨日データなし'}</div>
     </div>
     <div class="wssc">
       <div class="wssc-l">7日平均</div>
-      <div class="wssc-v" style="color:var(--purp)">${avg7!==null ? avg7.toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${avg7!==null?' kg':''}</span></div>
-      <div class="wssc-s">${last7.length}日分のデータ</div>
+      <div class="wssc-v" style="color:var(--purp)">${avg7!==null ? avg7 : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${avg7!==null?' kg':''}</span></div>
+      <div class="wssc-s">${last7arr.length}日分のデータ</div>
     </div>
     <div class="wssc">
       <div class="wssc-l">目標まで</div>
-      <div class="wssc-v" style="color:${gw&&todayW?(todayW>gw?'var(--amber)':'var(--green)'):'var(--muted)'}">${gw&&todayW ? Math.abs(todayW-gw).toFixed(1)+'' : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${gw&&todayW?' kg':''}</span></div>
+      <div class="wssc-v" style="color:${gw&&todayW ? (todayW>gw?'var(--amber)':'var(--green)') : 'var(--muted)'}">${gw&&todayW ? Math.abs(+(todayW-gw).toFixed(1)) : '--'}<span style="font-size:13px;color:var(--dim);font-weight:400">${gw&&todayW?' kg':''}</span></div>
       <div class="wssc-s">${gw ? '目標: '+gw+' kg' : '未設定'}</div>
     </div>`;
 
@@ -981,23 +1009,43 @@ function renderWeightSection() {
   if (recorded.length < 2) {
     commentEl.innerHTML = `<div class="ws-comment wc-none">💬 &nbsp;データを積み重ねることでトレンドが表示されます</div>`;
   } else {
-    // compare first half vs second half of recorded data
     const half = Math.floor(recorded.length / 2);
     const firstHalf  = recorded.slice(0, half).map(d=>d.w);
     const secondHalf = recorded.slice(-half).map(d=>d.w);
-    const avgFirst  = firstHalf.reduce((a,b)=>a+b,0)  / firstHalf.length;
-    const avgSecond = secondHalf.reduce((a,b)=>a+b,0) / secondHalf.length;
+    const avgFirst   = firstHalf.reduce((a,b)=>a+b,0)  / firstHalf.length;
+    const avgSecond  = secondHalf.reduce((a,b)=>a+b,0) / secondHalf.length;
     const delta = +(avgSecond - avgFirst).toFixed(2);
-
+    const period = wPeriod === 0 ? '全期間' : wPeriod + '日';
     let cls, icon, msg;
-    if      (delta >=  0.5) { cls='wc-up';   icon='📈'; msg=`増量順調！ ${wPeriod}日で +${delta} kg の増加トレンド`; }
+    if      (delta >=  0.5) { cls='wc-up';   icon='📈'; msg=`増量順調！ ${period}で +${delta} kg の増加トレンド`; }
     else if (delta >=  0.1) { cls='wc-up';   icon='📈'; msg=`増量傾向 (+${delta} kg)。このまま続けよう！`; }
-    else if (delta <= -0.5) { cls='wc-down';  icon='📉'; msg=`減少傾向 (${delta} kg)。カロリーを見直そう`; }
-    else if (delta <= -0.1) { cls='wc-down';  icon='📉'; msg=`やや減少傾向 (${delta} kg)。食事量を確認`; }
-    else                    { cls='wc-flat';  icon='➡️'; msg=`停滞中 (${delta >= 0 ? '+' : ''}${delta} kg)。食事や運動を見直すタイミング`; }
-
+    else if (delta <= -0.5) { cls='wc-down'; icon='📉'; msg=`減少傾向 (${delta} kg)。カロリーを見直そう`; }
+    else if (delta <= -0.1) { cls='wc-down'; icon='📉'; msg=`やや減少傾向 (${delta} kg)。食事量を確認`; }
+    else                    { cls='wc-flat'; icon='➡️'; msg=`停滞中 (${delta>=0?'+':''}${delta} kg)。食事や運動を見直すタイミング`; }
     commentEl.innerHTML = `<div class="ws-comment ${cls}">${icon} &nbsp;${msg}</div>`;
   }
+
+  // ── 変化量セクション ──
+  const fmtD = v => v===null ? '--' : (v>0?'+':'')+v+' kg';
+  const dCol = v => v===null ? 'var(--dim)' : v>0.05 ? 'var(--amber)' : v<-0.05 ? 'var(--green)' : 'var(--dim)';
+  const dIco = v => v===null ? '⚖️' : v>0.05 ? '📈' : v<-0.05 ? '📉' : '➡️';
+  document.getElementById('wsDelta').innerHTML = `
+    <div class="wc-delta">
+      <div class="wcd">
+        <div class="wcd-icon">${dIco(delta7)}</div>
+        <div class="wcd-info">
+          <div class="wcd-label">過去7日の変化</div>
+          <div class="wcd-val" style="color:${dCol(delta7)}">${fmtD(delta7)}</div>
+        </div>
+      </div>
+      <div class="wcd">
+        <div class="wcd-icon">${dIco(delta30)}</div>
+        <div class="wcd-info">
+          <div class="wcd-label">過去30日の変化</div>
+          <div class="wcd-val" style="color:${dCol(delta30)}">${fmtD(delta30)}</div>
+        </div>
+      </div>
+    </div>`;
 
   // ── chart or empty ──
   const chartArea = document.getElementById('wsChartArea');
@@ -1016,48 +1064,97 @@ function renderWeightSection() {
     chartArea.innerHTML = '<div class="chart-wrap"><canvas id="weightChart"></canvas></div>';
   }
 
-  const labels = days.map(d => d.label);
-  const data   = days.map(d => d.w);
+  const labels   = days.map(d => d.label);
+  const data     = days.map(d => d.w);
+
+  // 7日移動平均ライン (各日の過去7日分の平均)
+  const avg7Line = days.map((_, i) => {
+    const slice = days.slice(Math.max(0, i-6), i+1).filter(d => d.w !== null);
+    return slice.length >= 2 ? +(slice.reduce((a,b)=>a+b.w,0)/slice.length).toFixed(2) : null;
+  });
 
   const ctx = document.getElementById('weightChart').getContext('2d');
   if (wChart) wChart.destroy();
 
-  // gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, 220);
-  grad.addColorStop(0, 'rgba(0,212,255,.18)');
+  // グラデーション背景
+  const grad = ctx.createLinearGradient(0, 0, 0, 240);
+  grad.addColorStop(0, 'rgba(0,212,255,.22)');
   grad.addColorStop(1, 'rgba(0,212,255,0)');
+
+  // ネオングロープラグイン (体重ラインとポイントに発光)
+  const neonPlugin = {
+    id: 'neon',
+    beforeDatasetDraw(chart, args) {
+      if (args.index !== 0) return;
+      chart.ctx.save();
+      chart.ctx.shadowColor = 'rgba(0,212,255,.85)';
+      chart.ctx.shadowBlur  = 14;
+    },
+    afterDatasetDraw(chart, args) {
+      if (args.index !== 0) return;
+      chart.ctx.restore();
+    }
+  };
+
+  const maxTicks = wPeriod === 7 ? 7 : wPeriod === 0 ? 8 : 10;
 
   wChart = new Chart(ctx, {
     type: 'line',
+    plugins: [neonPlugin],
     data: {
       labels,
-      datasets: [{
-        label: '体重(kg)', data,
-        borderColor: '#00d4ff',
-        backgroundColor: grad,
-        fill: true, tension: .4, spanGaps: true,
-        pointRadius: days.map(d => d.w !== null ? 4 : 0),
-        pointBackgroundColor: '#00d4ff',
-        pointBorderColor: '#080d18',
-        pointBorderWidth: 2,
-        pointHoverRadius: 7,
-        borderWidth: 2.5,
-      }]
+      datasets: [
+        {
+          label: '体重(kg)', data,
+          borderColor: '#00d4ff',
+          backgroundColor: grad,
+          fill: true, tension: .4, spanGaps: true,
+          pointRadius: days.map(d => d.w !== null ? 5 : 0),
+          pointBackgroundColor: '#00d4ff',
+          pointBorderColor: '#080d18',
+          pointBorderWidth: 2,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: '#ffffff',
+          borderWidth: 2.5,
+          order: 2,
+        },
+        {
+          label: '7日平均', data: avg7Line,
+          borderColor: 'rgba(167,139,250,.75)',
+          backgroundColor: 'transparent',
+          fill: false, tension: .4, spanGaps: true,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          order: 1,
+        }
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      animation: { duration: 400 },
+      animation: { duration: 450 },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: true,
+          labels: {
+            color: '#94a3b8', font: { size: 11 },
+            usePointStyle: true, pointStyleWidth: 12, boxHeight: 6,
+          }
+        },
         tooltip: {
           backgroundColor: 'rgba(13,20,36,.92)',
           borderColor: 'rgba(0,212,255,.3)',
           borderWidth: 1,
           titleColor: '#94a3b8',
           bodyColor: '#e2e8f0',
-          bodyFont: { weight: 'bold', size: 14 },
+          bodyFont: { weight: 'bold', size: 13 },
           callbacks: {
-            label: c => c.parsed.y != null ? ` ${c.parsed.y} kg` : ' データなし',
+            label: c => {
+              if (c.parsed.y == null) return null;
+              if (c.datasetIndex === 0) return ` 体重: ${c.parsed.y} kg`;
+              return ` 7日平均: ${c.parsed.y} kg`;
+            }
           }
         }
       },
@@ -1068,7 +1165,7 @@ function renderWeightSection() {
           grid:  { color: 'rgba(255,255,255,.04)' },
         },
         x: {
-          ticks: { maxTicksLimit: wPeriod === 7 ? 7 : 10, color: '#475569', font: { size: 11 } },
+          ticks: { maxTicksLimit: maxTicks, color: '#475569', font: { size: 11 } },
           grid:  { color: 'rgba(255,255,255,.03)' },
         }
       }
